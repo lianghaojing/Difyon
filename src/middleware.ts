@@ -1,6 +1,8 @@
-// middleware.ts
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import authConfig from "@/auth.config";
 import { NextResponse } from "next/server";
+
+const { auth } = NextAuth(authConfig);
 
 const publicRoutes = [
   "/login",
@@ -8,6 +10,11 @@ const publicRoutes = [
   "/verify-email",
   "/forgot-password",
   "/reset-password",
+  "/api/register",
+  "/api/verify-email",
+  "/api/forgot-password",
+  "/api/reset-password",
+  "/api/resend-verification",
 ];
 const authRoutes = ["/login", "/register"];
 
