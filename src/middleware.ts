@@ -1,0 +1,48 @@
+// middleware.ts
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+
+const publicRoutes = [
+  "/login",
+  "/register",
+  "/verify-email",
+  "/forgot-password",
+  "/reset-password",
+];
+const authRoutes = ["/login", "/register"];
+
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
+  const isPublicRoute = publicRoutes.some((route) =>
+    nextUrl.pathname.startsWith(route)
+  );
+  const isAuthRoute = authRoutes.some((route) =>
+    nextUrl.pathname.startsWith(route)
+  );
+  const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+
+  // Auth API 路由始终允许
+  if (isApiAuthRoute) return NextResponse.next();
+
+  // 已登录用户访问登录/注册页面 → 重定向到首页
+  if (isAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL("/", nextUrl));
+  }
+
+  // 未登录用户访问受保护页面 → 重定向到登录页
+  if (!isPublicRoute && !isLoggedIn) {
+    const callbackUrl = encodeURIComponent(nextUrl.pathname + nextUrl.search);
+    return NextResponse.redirect(
+      new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl)
+    );
+  }
+
+  return NextResponse.next();
+});
+
+export const config = {
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+  ],
+};
