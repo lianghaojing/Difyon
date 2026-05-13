@@ -6,7 +6,8 @@ export default async function Home() {
   const session = await auth();
 
   // Redirect unverified email users to verify-email page
-  if (session?.user && !(session.user as Record<string, unknown>).emailVerified) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (session?.user && !(session.user as any).emailVerified) {
     redirect(`/verify-email?email=${encodeURIComponent(session.user.email || "")}`);
   }
 

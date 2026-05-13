@@ -87,13 +87,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token.invalid) {
         // Return empty session to force re-authentication
-        return { ...session, user: undefined } as typeof session;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return { ...session, user: undefined } as any;
       }
       if (token) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        (session.user as Record<string, unknown>).emailVerified = token.emailVerified as boolean;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (session.user as any).emailVerified = token.emailVerified as boolean;
       }
       return session;
     },
