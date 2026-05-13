@@ -33,8 +33,6 @@ describe("emailSchema", () => {
 
   it("accepts email at exactly 254 characters", () => {
     // Create a valid email that is exactly 254 chars
-    const localPart = "a".repeat(243);
-    const email = `${localPart}@example.com`; // 243 + 1 + 7 + 1 + 3 = 255... let's adjust
     const email254 = "a".repeat(241) + "@example.com"; // 241 + 12 = 253
     expect(email254.length).toBeLessThanOrEqual(254);
     expect(emailSchema.safeParse(email254).success).toBe(true);

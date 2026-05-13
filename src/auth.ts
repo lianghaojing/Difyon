@@ -43,17 +43,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ account }) {
       // Google OAuth users are always allowed to sign in
       if (account?.provider === "google") return true;
 
-      // Credentials users: check if email is verified
+      // Credentials users: allow sign-in (email verification enforced at session level)
       if (account?.provider === "credentials") {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { emailVerified: true },
-        });
-        // Allow sign-in but we'll handle unverified state in the session
         return true;
       }
 
@@ -92,13 +87,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token.invalid) {
         // Return empty session to force re-authentication
-        return { ...session, user: undefined } as any;
+        return { ...session, user: undefined } as typeof session;
       }
       if (token) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        (session.user as any).emailVerified = token.emailVerified as boolean;
+        (session.user as Record<string, unknown>).emailVerified = token.emailVerified as boolean;
       }
       return session;
     },

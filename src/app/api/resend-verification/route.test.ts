@@ -45,7 +45,7 @@ describe("POST /api/resend-verification", () => {
     // Default: user exists and is unverified
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       emailVerified: null,
-    } as any);
+    } as never);
   });
 
   it("returns uniform success when email is missing (no enumeration)", async () => {
@@ -74,7 +74,7 @@ describe("POST /api/resend-verification", () => {
   it("sends verification email when user exists and is unverified", async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       emailVerified: null,
-    } as any);
+    } as never);
 
     const req = createRequest({ email: "user@example.com" });
 
@@ -93,7 +93,7 @@ describe("POST /api/resend-verification", () => {
   it("does NOT send email when user is already verified", async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       emailVerified: new Date(),
-    } as any);
+    } as never);
 
     const req = createRequest({ email: "verified@example.com" });
 

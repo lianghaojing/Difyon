@@ -26,7 +26,7 @@ export function RegisterForm() {
     handleSubmit,
     watch,
     trigger,
-    formState: { errors, isSubmitting, touchedFields, dirtyFields },
+    formState: { errors, isSubmitting, dirtyFields },
     getFieldState,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
