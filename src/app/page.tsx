@@ -1,8 +1,14 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 export default async function Home() {
   const session = await auth();
+
+  // Redirect unverified email users to verify-email page
+  if (session?.user && !(session.user as any).emailVerified) {
+    redirect(`/verify-email?email=${encodeURIComponent(session.user.email || "")}`);
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4">

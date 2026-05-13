@@ -15,6 +15,13 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
   const from = process.env.EMAIL_FROM || "noreply@example.com";
 
   if (process.env.NODE_ENV === "production") {
+    if (!process.env.RESEND_API_KEY) {
+      console.error(
+        "[Email] CRITICAL: No email provider configured in production! " +
+        "Set RESEND_API_KEY environment variable. Emails will NOT be sent."
+      );
+      return;
+    }
     // TODO: Replace with Resend or Nodemailer in production
     // Example with Resend:
     //   const resend = new Resend(process.env.RESEND_API_KEY);

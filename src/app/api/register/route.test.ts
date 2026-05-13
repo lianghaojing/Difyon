@@ -167,6 +167,7 @@ describe("POST /api/register", () => {
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
         email: "user@example.com",
+        name: "User",
         displayName: "User",
         hashedPassword: "hashed_password_123",
       },

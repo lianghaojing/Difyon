@@ -46,7 +46,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account }) {
       // Google OAuth users are always allowed to sign in
       if (account?.provider === "google") return true;
-      // Credentials users are allowed to sign in (email verification handled at business layer)
+
+      // Credentials users: check if email is verified
+      if (account?.provider === "credentials") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { emailVerified: true },
+        });
+        // Allow sign-in but we'll handle unverified state in the session
+        return true;
+      }
+
       return true;
     },
     async jwt({ token, user }) {
@@ -54,24 +64,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        // Fetch current tokenVersion from database
+        // Fetch current tokenVersion and emailVerified from database
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { tokenVersion: true },
+          select: { tokenVersion: true, emailVerified: true },
         });
         token.tokenVersion = dbUser?.tokenVersion ?? 0;
+        token.emailVerified = !!dbUser?.emailVerified;
       }
 
       // On every request, verify tokenVersion against database
       if (token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { tokenVersion: true },
+          select: { tokenVersion: true, emailVerified: true },
         });
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
           // tokenVersion mismatch - session has been revoked
           return { ...token, invalid: true };
         }
+        // Update emailVerified status in token
+        token.emailVerified = !!dbUser.emailVerified;
       }
 
       return token;
@@ -85,6 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        (session.user as any).emailVerified = token.emailVerified as boolean;
       }
       return session;
     },

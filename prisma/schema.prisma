@@ -10,8 +10,9 @@ datasource db {
 model User {
   id             String    @id @default(uuid())
   email          String    @unique
+  name           String?
   hashedPassword String?   @map("hashed_password")
-  displayName    String    @map("display_name")
+  displayName    String?   @map("display_name")
   emailVerified  DateTime? @map("email_verified")
   image          String?
   tokenVersion   Int       @default(0) @map("token_version")
