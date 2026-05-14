@@ -41,12 +41,14 @@ const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
   eye: "/icons/auth/eye.svg",
   eyeOff: "/icons/auth/eye-off.svg",
+  fontSelect: "/icons/auth/font-select.svg",
 };
 
 export function RegisterForm() {
   const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const languagePickerRef = useRef<HTMLDivElement>(null);
   const [locale, setLocale] = useState<AuthLocale>("en");
   const [formError, setFormError] = useState<string>("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -58,6 +60,24 @@ export function RegisterForm() {
     setLocale(resolveAuthLocale(window.navigator.language));
   }, []);
 
+  useEffect(() => {
+    if (!isLanguageOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        languagePickerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIsLanguageOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isLanguageOpen]);
+
   const copy = authCopy[locale];
 
   const {
@@ -65,10 +85,10 @@ export function RegisterForm() {
     handleSubmit,
     watch,
     trigger,
-    formState: { errors, isSubmitting, isSubmitted },
+    formState: { errors, isSubmitting, isSubmitted, isValid },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: {
       email: "",
       displayName: "",
@@ -86,7 +106,7 @@ export function RegisterForm() {
     : null;
 
   const isBusy = isSubmitting || isGoogleLoading;
-  const isSubmitDisabled = isBusy || !acceptedTerms;
+  const isSubmitDisabled = isBusy || !acceptedTerms || !isValid;
 
   useEffect(() => {
     if (!heroRef.current || !formRef.current) return;
@@ -201,17 +221,7 @@ export function RegisterForm() {
             {copy.brand}
           </Link>
 
-          <div
-            className="relative"
-            onMouseEnter={() => setIsLanguageOpen(true)}
-            onMouseLeave={() => setIsLanguageOpen(false)}
-            onFocus={() => setIsLanguageOpen(true)}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) {
-                setIsLanguageOpen(false);
-              }
-            }}
-          >
+          <div className="relative" ref={languagePickerRef}>
             <button
               type="button"
               onClick={() => setIsLanguageOpen((value) => !value)}
@@ -219,15 +229,8 @@ export function RegisterForm() {
               aria-haspopup="listbox"
               aria-expanded={isLanguageOpen}
             >
+              <IconMask src={authIcons.fontSelect} color="#55637f" />
               {copy.languages[locale]}
-              <span
-                className={`text-[#55637f] transition-transform ${
-                  isLanguageOpen ? "rotate-180" : ""
-                }`}
-                aria-hidden="true"
-              >
-                v
-              </span>
             </button>
 
             <motion.div
@@ -418,19 +421,19 @@ export function RegisterForm() {
                 <motion.button
                   type="submit"
                   disabled={isSubmitDisabled}
-                  whileHover={!isSubmitDisabled ? { y: -1 } : undefined}
                   whileTap={!isSubmitDisabled ? { scale: 0.99 } : undefined}
-                  className={`flex h-[42px] w-full items-center justify-center rounded-[8px] text-sm font-semibold transition ${
+                  whileHover={!isSubmitDisabled ? { y: -1 } : undefined}
+                  className={`group flex h-[42px] w-full items-center justify-center rounded-[8px] text-sm font-semibold transition ${
                     isSubmitDisabled
                       ? "bg-[#ecedf3] text-[#a6b0c4]"
                       : "bg-[#f953c6] text-white shadow-[0_12px_30px_rgba(249,83,198,0.24)] hover:bg-[#ec3abb]"
                   }`}
                 >
                   {isSubmitting ? copy.loading : copy.createAccount}
-                  <IconMask
-                    src={authIcons.arrow}
+                  <MotionArrow
                     className="ml-2"
                     color={isSubmitDisabled ? "#a6b0c4" : "#ffffff"}
+                    disabled={isSubmitDisabled}
                   />
                 </motion.button>
               </FormMotionRow>
@@ -439,14 +442,10 @@ export function RegisterForm() {
                 {copy.alreadyHaveAccount}{" "}
                 <Link
                   href="/login"
-                  className="text-[#f953c6] transition hover:text-[#ec3abb]"
+                  className="group inline-flex items-center text-[#f953c6] transition hover:text-[#ec3abb]"
                 >
                   {copy.login}
-                  <IconMask
-                    src={authIcons.arrow}
-                    className="ml-1 inline-block align-[-2px]"
-                    color="#f953c6"
-                  />
+                  <MotionArrow className="ml-1" />
                 </Link>
               </FormMotionRow>
             </motion.form>
@@ -602,5 +601,26 @@ function IconMask({
         mask: `url(${src}) center / contain no-repeat`,
       }}
     />
+  );
+}
+
+function MotionArrow({
+  color = "#f953c6",
+  className = "",
+  disabled = false,
+}: {
+  color?: string;
+  className?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <span
+      className={`inline-flex translate-x-0 transition-transform duration-200 ease-out ${
+        disabled ? "" : "group-hover:translate-x-1"
+      } ${className}`}
+      aria-hidden="true"
+    >
+      <IconMask src={authIcons.arrow} color={color} />
+    </span>
   );
 }
