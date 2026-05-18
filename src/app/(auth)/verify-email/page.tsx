@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
+import { BrandLoading } from "@/components/ui/brand-loading";
 
 type VerifyState =
   | "loading"
@@ -112,9 +112,8 @@ function VerifyEmailContent() {
 
   if (state === "loading") {
     return (
-      <div className="flex flex-col items-center gap-4 py-8">
-        <Spinner size="lg" />
-        <p className="text-sm text-gray-600">正在验证您的邮箱...</p>
+      <div className="py-8">
+        <BrandLoading label="正在验证您的邮箱..." />
       </div>
     );
   }
@@ -290,9 +289,8 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-col items-center gap-4 py-8">
-          <Spinner size="lg" />
-          <p className="text-sm text-gray-600">加载中...</p>
+        <div className="py-8">
+          <BrandLoading />
         </div>
       }
     >
