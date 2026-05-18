@@ -16,10 +16,9 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import gsap from "gsap";
 import { z } from "zod";
 
-import { registerSchema, calculatePasswordStrength } from "@/lib/validations";
+import { registerSchema } from "@/lib/validations";
 import {
   authCopy,
   authLocales,
@@ -27,18 +26,17 @@ import {
   translateValidationMessage,
   type AuthLocale,
 } from "@/lib/i18n/auth";
-import { PasswordStrength } from "@/components/auth/password-strength";
-
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const fieldBase =
-  "peer block h-[42px] w-full rounded-[8px] border bg-white px-4 text-sm font-medium text-[#1a1e26] outline-none transition placeholder:text-transparent";
+  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#a6b0c4] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
 
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
 
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
+  check: "/icons/auth/check.svg",
   eye: "/icons/auth/eye.svg",
   eyeOff: "/icons/auth/eye-off.svg",
   fontSelect: "/icons/auth/font-select.svg",
@@ -46,15 +44,15 @@ const authIcons = {
 
 export function RegisterForm() {
   const router = useRouter();
-  const heroRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const languagePickerRef = useRef<HTMLDivElement>(null);
   const [locale, setLocale] = useState<AuthLocale>("en");
   const [formError, setFormError] = useState<string>("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   useEffect(() => {
     setLocale(resolveAuthLocale(window.navigator.language));
@@ -91,7 +89,7 @@ export function RegisterForm() {
     mode: "onChange",
     defaultValues: {
       email: "",
-      displayName: "",
+      displayName: "User",
       password: "",
       confirmPassword: "",
     },
@@ -101,45 +99,26 @@ export function RegisterForm() {
   const emailValue = watch("email");
   const displayNameValue = watch("displayName");
   const confirmPasswordValue = watch("confirmPassword");
-  const passwordStrength = passwordValue
-    ? calculatePasswordStrength(passwordValue)
-    : null;
-
   const isBusy = isSubmitting || isGoogleLoading;
   const isSubmitDisabled = isBusy || !acceptedTerms || !isValid;
-
-  useEffect(() => {
-    if (!heroRef.current || !formRef.current) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".gsap-title",
-        { y: 18, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" }
-      );
-      gsap.fromTo(
-        ".gsap-rule",
-        { scaleX: 0 },
-        { scaleX: 1, duration: 0.65, ease: "power3.out", delay: 0.2 }
-      );
-    }, heroRef);
-
-    return () => ctx.revert();
-  }, [locale]);
 
   const validation = useMemo(
     () => {
       const shouldShowError = (value?: string) =>
         isSubmitted || Boolean(value && value.length > 0);
+      const emailError =
+        emailValue && errors.email?.message === "邮箱不能为空"
+          ? undefined
+          : errors.email?.message;
 
       return {
         email: shouldShowError(emailValue)
-          ? translateValidationMessage(locale, errors.email?.message)
+          ? translateValidationMessage(locale, emailError)
           : undefined,
         displayName: shouldShowError(displayNameValue)
           ? translateValidationMessage(locale, errors.displayName?.message)
           : undefined,
-        password: shouldShowError(passwordValue)
+        password: !isPasswordFocused && shouldShowError(passwordValue)
           ? translateValidationMessage(locale, errors.password?.message)
           : undefined,
         confirmPassword: shouldShowError(confirmPasswordValue)
@@ -153,6 +132,7 @@ export function RegisterForm() {
       emailValue,
       errors,
       isSubmitted,
+      isPasswordFocused,
       locale,
       passwordValue,
     ]
@@ -172,7 +152,11 @@ export function RegisterForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setFormError(errorData.error || copy.genericError);
+        setFormError(
+          response.status === 409
+            ? copy.emailInUse
+            : errorData.error || copy.genericError
+        );
         return;
       }
 
@@ -206,13 +190,8 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
-      <motion.div
-        className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-5 py-6 sm:px-8 md:px-12 lg:px-16"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.35 }}
-      >
+    <div className="min-h-dvh bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
+      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 py-6 sm:px-8 sm:py-8 md:px-12 md:py-12 lg:px-16">
         <header className="flex items-center justify-between">
           <Link
             href="/"
@@ -225,7 +204,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setIsLanguageOpen((value) => !value)}
-              className="flex h-10 min-w-[72px] items-center justify-center gap-2 rounded-[12px] border border-[#ecedf3] bg-white px-3 text-xs font-semibold text-[#1a1e26] shadow-[inset_0_-2px_0_#ecedf3] transition hover:bg-[#f9fafb]"
+              className="flex h-10 min-w-[72px] items-center justify-center gap-2 rounded-[12px] border border-[#ecedf3] bg-white px-3 text-xs font-semibold text-[#1a1e26] shadow-[inset_0_-2px_0_#ecedf3] outline-none transition-colors duration-300 ease-out hover:bg-[#f9fafb] focus-visible:border-[#f953c6] focus-visible:ring-2 focus-visible:ring-[#f953c6]/20"
               aria-haspopup="listbox"
               aria-expanded={isLanguageOpen}
             >
@@ -234,7 +213,7 @@ export function RegisterForm() {
             </button>
 
             <motion.div
-              className="absolute right-0 top-12 z-20 w-[112px] overflow-hidden rounded-[12px] border border-[#ecedf3] bg-white p-1 shadow-[0_18px_45px_rgba(26,30,38,0.12)]"
+              className="absolute right-0 top-12 z-20 w-[132px] overflow-hidden rounded-[12px] border border-[#ecedf3] bg-white p-1 shadow-[0_18px_45px_rgba(26,30,38,0.12)]"
               role="listbox"
               initial={false}
               animate={
@@ -252,45 +231,44 @@ export function RegisterForm() {
                     setLocale(item);
                     setIsLanguageOpen(false);
                   }}
-                  className={`flex h-9 w-full items-center rounded-[8px] px-3 text-left text-xs font-semibold transition ${
+                  className={`flex h-9 w-full items-center justify-between rounded-[8px] px-3 text-left text-xs font-semibold transition-colors duration-300 ease-out ${
                     locale === item
-                      ? "bg-[#1a1e26] text-white"
+                      ? "text-[#f953c6]"
                       : "text-[#55637f] hover:bg-[#f9fafb] hover:text-[#1a1e26]"
                   }`}
                   role="option"
                   aria-selected={locale === item}
                 >
                   {copy.languages[item]}
+                  {locale === item && (
+                    <IconMask src={authIcons.check} color="#f953c6" />
+                  )}
                 </button>
               ))}
             </motion.div>
           </div>
         </header>
 
-        <section className="flex flex-1 items-start justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-[88px]">
-          <div className="grid w-full max-w-[1030px] grid-cols-1 gap-10 lg:grid-cols-[420px_1fr] lg:gap-16 xl:gap-24">
-            <div ref={heroRef} className="lg:pt-2">
-              <motion.p
-                className="mb-5 inline-flex rounded-full border border-[#ecedf3] px-3 py-1 text-xs font-semibold text-[#55637f] shadow-[inset_0_-2px_0_#ecedf3]"
-                initial={{ y: 12, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.45, delay: 0.05 }}
-              >
-                {copy.brand}
-              </motion.p>
-              <h1 className="gsap-title max-w-[620px] text-4xl font-bold leading-tight tracking-[0] text-[#1a1e26] sm:text-[44px] lg:text-[36px]">
+        <section className="flex flex-1 items-start justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-[58px]">
+          <motion.div
+            key={locale}
+            className="w-full max-w-[420px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <div className="mb-[30px] text-left">
+              <h1 className="text-[30px] font-bold leading-tight tracking-[0] text-[#1a1e26] sm:text-[36px]">
                 {copy.registerTitle}
               </h1>
-              <p className="gsap-title mt-4 max-w-[520px] text-base leading-7 text-[#55637f] sm:text-lg lg:text-[18px]">
+              <p className="mt-3 text-base leading-7 text-[#55637f] sm:text-lg">
                 {copy.registerSubtitle}
               </p>
-              <div className="gsap-rule mt-8 h-px w-full max-w-[420px] origin-left bg-[#f0f1f5]" />
             </div>
 
             <motion.form
-              ref={formRef}
               onSubmit={handleSubmit(onSubmit)}
-              className="w-full max-w-[420px] justify-self-center lg:justify-self-start"
+              className="w-full"
               noValidate
               initial="hidden"
               animate="show"
@@ -304,14 +282,14 @@ export function RegisterForm() {
                   type="button"
                   onClick={handleGoogleSignUp}
                   disabled={isBusy}
-                  className="flex h-[42px] w-full items-center justify-center gap-3 rounded-[12px] border border-[#ecedf3] bg-white text-sm font-semibold text-[#1a1e26] shadow-[inset_0_-2px_0_#ecedf3] transition hover:bg-[#f9fafb] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex h-[42px] w-full items-center justify-center gap-3 rounded-[12px] border border-[#ecedf3] bg-white text-sm font-semibold text-[#1a1e26] shadow-[inset_0_-2px_0_#ecedf3] transition-colors duration-300 ease-out hover:bg-[#f9fafb] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <GoogleIcon />
                   {copy.continueWithGoogle}
                 </button>
               </FormMotionRow>
 
-              <FormMotionRow className="my-7 flex items-center gap-4">
+              <FormMotionRow className="my-[30px] flex items-center gap-4">
                 <span className="h-px flex-1 bg-[#f0f1f5]" />
                 <span className="text-sm font-medium text-[#a6b0c4]">
                   {copy.separator}
@@ -329,7 +307,7 @@ export function RegisterForm() {
                 </FormMotionRow>
               )}
 
-              <div className="space-y-5">
+              <div className="space-y-2">
                 <FloatingInput
                   id="email"
                   label={copy.email}
@@ -341,59 +319,75 @@ export function RegisterForm() {
                   {...register("email", { onBlur: () => trigger("email") })}
                 />
 
-                <FloatingInput
-                  id="displayName"
-                  label={copy.displayName}
-                  placeholder={copy.displayNamePlaceholder}
-                  type="text"
-                  autoComplete="name"
-                  value={displayNameValue}
-                  error={validation.displayName}
-                  {...register("displayName", {
-                    onBlur: () => trigger("displayName"),
-                  })}
-                />
+                <input type="hidden" {...register("displayName")} />
 
-                <FloatingInput
-                  id="password"
-                  label={copy.password}
-                  placeholder={copy.passwordPlaceholder}
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  value={passwordValue}
-                  error={validation.password}
-                  endAdornment={
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((value) => !value)}
-                      className="text-[#55637f] transition hover:text-[#f953c6]"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      <IconMask
-                        src={showPassword ? authIcons.eye : authIcons.eyeOff}
-                        color="#55637f"
-                      />
-                    </button>
-                  }
-                  {...register("password", {
-                    onBlur: () => trigger("password"),
-                  })}
-                />
+                <div className="relative">
+                  <FloatingInput
+                    id="password"
+                    label={copy.password}
+                    placeholder={copy.passwordPlaceholder}
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={passwordValue}
+                    error={validation.password}
+                    onFocus={() => setIsPasswordFocused(true)}
+                    endAdornment={
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((value) => !value)}
+                        className="flex h-6 w-6 items-center justify-center text-[#55637f] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        <IconMask
+                          src={showPassword ? authIcons.eye : authIcons.eyeOff}
+                          color="#55637f"
+                        />
+                      </button>
+                    }
+                    {...register("password", {
+                      onBlur: () => {
+                        setIsPasswordFocused(false);
+                        trigger("password");
+                      },
+                    })}
+                  />
 
-                {passwordValue && passwordStrength && (
-                  <FormMotionRow>
-                    <PasswordStrength strength={passwordStrength} />
-                  </FormMotionRow>
-                )}
+                  <PasswordRequirements
+                    copy={copy.passwordRequirements}
+                    password={passwordValue}
+                    visible={isPasswordFocused}
+                  />
+                </div>
 
                 <FloatingInput
                   id="confirmPassword"
                   label={copy.confirmPassword}
                   placeholder={copy.confirmPasswordPlaceholder}
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   autoComplete="new-password"
                   value={confirmPasswordValue}
                   error={validation.confirmPassword}
+                  endAdornment={
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((value) => !value)}
+                      className="flex h-6 w-6 items-center justify-center text-[#55637f] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+                      aria-label={
+                        showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"
+                      }
+                    >
+                      <IconMask
+                        src={
+                          showConfirmPassword ? authIcons.eye : authIcons.eyeOff
+                        }
+                        color="#55637f"
+                      />
+                    </button>
+                  }
                   {...register("confirmPassword", {
                     onBlur: () => trigger("confirmPassword"),
                   })}
@@ -401,32 +395,53 @@ export function RegisterForm() {
               </div>
 
               <FormMotionRow className="mt-6">
-                <label className="flex items-start gap-3 text-sm font-medium leading-5 text-[#55637f]">
+                <div className="flex items-start gap-3 text-sm font-semibold leading-5 text-[#55637f]">
                   <input
+                    id="acceptedTerms"
                     type="checkbox"
                     checked={acceptedTerms}
                     onChange={(event) => setAcceptedTerms(event.target.checked)}
-                    className="mt-0.5 h-[18px] w-[18px] rounded-[4px] border-[#ecedf3] accent-[#f953c6]"
+                    className="peer sr-only"
                   />
+                  <label
+                    htmlFor="acceptedTerms"
+                    className="mt-0.5 flex h-[18px] w-[18px] shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-[#cfd5e1] bg-white transition-colors duration-300 ease-out peer-checked:border-[#f953c6] peer-checked:bg-[#f953c6] peer-focus-visible:ring-2 peer-focus-visible:ring-[#f953c6]/20"
+                  >
+                    {acceptedTerms && (
+                      <IconMask
+                        src={authIcons.check}
+                        color="#ffffff"
+                        className="h-3 w-3"
+                      />
+                    )}
+                  </label>
                   <span>
                     {copy.agreePrefix}{" "}
-                    <span className="text-[#1a1e26]">{copy.terms}</span>
+                    <Link
+                      href="/terms"
+                      className="text-[#1a1e26] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+                    >
+                      {copy.terms}
+                    </Link>
                     {" & "}
-                    <span className="text-[#1a1e26]">{copy.privacy}</span>
+                    <Link
+                      href="/privacy"
+                      className="text-[#1a1e26] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+                    >
+                      {copy.privacy}
+                    </Link>
                   </span>
-                </label>
+                </div>
               </FormMotionRow>
 
               <FormMotionRow className="mt-10">
                 <motion.button
                   type="submit"
                   disabled={isSubmitDisabled}
-                  whileTap={!isSubmitDisabled ? { scale: 0.99 } : undefined}
-                  whileHover={!isSubmitDisabled ? { y: -1 } : undefined}
-                  className={`group flex h-[42px] w-full items-center justify-center rounded-[8px] text-sm font-semibold transition ${
+                  className={`group flex h-[42px] w-full items-center justify-center rounded-[8px] text-sm font-semibold transition-colors duration-300 ease-out ${
                     isSubmitDisabled
-                      ? "bg-[#ecedf3] text-[#a6b0c4]"
-                      : "bg-[#f953c6] text-white shadow-[0_12px_30px_rgba(249,83,198,0.24)] hover:bg-[#ec3abb]"
+                      ? "cursor-not-allowed bg-[#ecedf3] text-[#a6b0c4]"
+                      : "bg-[#f953c6] text-white hover:bg-[#ec3abb]"
                   }`}
                 >
                   {isSubmitting ? copy.loading : copy.createAccount}
@@ -442,16 +457,16 @@ export function RegisterForm() {
                 {copy.alreadyHaveAccount}{" "}
                 <Link
                   href="/login"
-                  className="group inline-flex items-center text-[#f953c6] transition hover:text-[#ec3abb]"
+                  className="group inline-flex items-center text-[#f953c6] transition-colors duration-300 ease-out hover:text-[#ec3abb]"
                 >
                   {copy.login}
                   <MotionArrow className="ml-1" />
                 </Link>
               </FormMotionRow>
             </motion.form>
-          </div>
+          </motion.div>
         </section>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -479,6 +494,69 @@ function FormMotionRow({
       transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
+    </motion.div>
+  );
+}
+
+function PasswordRequirements({
+  copy,
+  password,
+  visible,
+}: {
+  copy: {
+    minLength: string;
+    lowercase: string;
+    uppercase: string;
+    number: string;
+  };
+  password: string;
+  visible: boolean;
+}) {
+  const requirements = [
+    { label: copy.minLength, met: password.length >= 8 },
+    { label: copy.lowercase, met: /[a-z]/.test(password) },
+    { label: copy.uppercase, met: /[A-Z]/.test(password) },
+    { label: copy.number, met: /[0-9]/.test(password) },
+  ];
+
+  return (
+    <motion.div
+      className="absolute left-0 right-0 top-[54px] z-10 rounded-[8px] border border-[#ecedf3] bg-white p-4 shadow-[0_18px_45px_rgba(26,30,38,0.08)]"
+      initial={false}
+      animate={
+        visible
+          ? { opacity: 1, y: 0, pointerEvents: "auto" }
+          : { opacity: 0, y: -4, pointerEvents: "none" }
+      }
+      transition={{ duration: 0.24, ease: "easeOut" }}
+    >
+      <ul className="space-y-3">
+        {requirements.map((requirement) => (
+          <li
+            key={requirement.label}
+            className={`flex items-center gap-3 text-xs font-medium transition-colors duration-300 ease-out ${
+              requirement.met ? "text-[#1a1e26]" : "text-[#7f8aa3]"
+            }`}
+          >
+            <span
+              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ease-out ${
+                requirement.met
+                  ? "border-[#f953c6] bg-[#f953c6]"
+                  : "border-[#a6b0c4] bg-white"
+              }`}
+            >
+              {requirement.met && (
+                <IconMask
+                  src={authIcons.check}
+                  color="#ffffff"
+                  className="h-2.5 w-2.5"
+                />
+              )}
+            </span>
+            {requirement.label}
+          </li>
+        ))}
+      </ul>
     </motion.div>
   );
 }
@@ -551,9 +629,14 @@ const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             </div>
           )}
         </div>
-        {error && (
-          <p className="mt-1.5 text-sm font-medium text-[#ff4337]">{error}</p>
-        )}
+        <p
+          className={`mt-1.5 min-h-4 text-xs font-medium leading-4 ${
+            error ? "text-[#ff4337]" : "text-transparent"
+          }`}
+          aria-hidden={error ? undefined : "true"}
+        >
+          {error || "."}
+        </p>
       </FormMotionRow>
     );
   }
@@ -615,7 +698,7 @@ function MotionArrow({
 }) {
   return (
     <span
-      className={`inline-flex translate-x-0 transition-transform duration-200 ease-out ${
+      className={`inline-flex translate-x-0 transition-transform duration-[700ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         disabled ? "" : "group-hover:translate-x-1"
       } ${className}`}
       aria-hidden="true"
