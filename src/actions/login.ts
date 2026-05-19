@@ -13,7 +13,7 @@ export async function login(values: {
 }) {
   const validated = loginSchema.safeParse(values);
   if (!validated.success) {
-    return { error: "请输入有效的邮箱和密码" };
+    return { errorKey: "loginInvalidInput" as const };
   }
 
   // Rate limiting by IP
@@ -26,7 +26,10 @@ export async function login(values: {
   const rateLimit = checkRateLimit(rateLimitKey, LOGIN_RATE_LIMIT);
 
   if (!rateLimit.allowed) {
-    return { error: "尝试次数过多，请稍后重试", retryAfterMs: rateLimit.retryAfterMs };
+    return {
+      errorKey: "loginRateLimited" as const,
+      retryAfterMs: rateLimit.retryAfterMs,
+    };
   }
 
   try {
@@ -39,9 +42,9 @@ export async function login(values: {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "邮箱或密码错误" };
+          return { errorKey: "loginInvalidCredentials" as const };
         default:
-          return { error: "登录失败，请稍后重试" };
+          return { errorKey: "loginGenericError" as const };
       }
     }
     throw error; // Re-throw redirect errors from next-auth

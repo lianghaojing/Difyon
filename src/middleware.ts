@@ -7,6 +7,8 @@ const { auth } = NextAuth(authConfig);
 const publicRoutes = [
   "/login",
   "/register",
+  "/terms",
+  "/privacy",
   "/verify-email",
   "/forgot-password",
   "/reset-password",
