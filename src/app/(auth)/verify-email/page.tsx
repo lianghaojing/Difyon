@@ -5,6 +5,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BrandLoading } from "@/components/ui/brand-loading";
+import {
+  authCopy,
+  resolveAuthLocale,
+  type AuthLocale,
+} from "@/lib/i18n/auth";
 
 type VerifyState =
   | "loading"
@@ -26,9 +31,15 @@ function VerifyEmailContent() {
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
   const [emailInput, setEmailInput] = useState("");
+  const [locale, setLocale] = useState<AuthLocale>("en");
 
   // Resolve email from URL param or sessionStorage
   const [email, setEmail] = useState<string | null>(emailParam);
+  const copy = authCopy[locale];
+
+  useEffect(() => {
+    setLocale(resolveAuthLocale(window.navigator.language));
+  }, []);
 
   useEffect(() => {
     if (emailParam) {
@@ -78,7 +89,7 @@ function VerifyEmailContent() {
   const handleResend = useCallback(async () => {
     const targetEmail = email || emailInput.trim();
     if (!targetEmail) {
-      setResendError("请输入邮箱地址");
+      setResendError(copy.verifyEmailAddressRequired);
       return;
     }
 
@@ -94,26 +105,26 @@ function VerifyEmailContent() {
       });
 
       if (response.ok) {
-        setResendMessage("验证邮件已重新发送，请检查您的邮箱");
+        setResendMessage(copy.verifyEmailResent);
         // Store the email for future use
         sessionStorage.setItem("verifyEmail", targetEmail);
         setEmail(targetEmail);
       } else if (response.status === 429) {
-        setResendError("发送过于频繁，请稍后重试");
+        setResendError(copy.verifyEmailRateLimited);
       } else {
-        setResendError("发送失败，请稍后重试");
+        setResendError(copy.verifyEmailResendFailed);
       }
     } catch {
-      setResendError("发送失败，请稍后重试");
+      setResendError(copy.verifyEmailResendFailed);
     } finally {
       setResending(false);
     }
-  }, [email, emailInput]);
+  }, [copy, email, emailInput]);
 
   if (state === "loading") {
     return (
       <div className="py-8">
-        <BrandLoading label="正在验证您的邮箱..." />
+        <BrandLoading label={copy.verifyEmailLoading} />
       </div>
     );
   }
@@ -137,9 +148,11 @@ function VerifyEmailContent() {
             />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-gray-900">邮箱验证成功</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          {copy.verifyEmailSuccessTitle}
+        </h2>
         <p className="text-sm text-gray-600">
-          正在跳转到登录页面...
+          {copy.verifyEmailSuccessSubtitle}
         </p>
       </div>
     );
@@ -164,18 +177,20 @@ function VerifyEmailContent() {
             />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-gray-900">验证链接已过期</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          {copy.verifyEmailExpiredTitle}
+        </h2>
         <p className="text-sm text-gray-600">
-          您的验证链接已过期，请重新发送验证邮件
+          {copy.verifyEmailExpiredSubtitle}
         </p>
         {!email && (
           <div className="w-full">
             <Input
               type="email"
-              placeholder="请输入您的邮箱地址"
+              placeholder={copy.emailPlaceholder}
               value={emailInput}
               onChange={(e) => setEmailInput(e.target.value)}
-              aria-label="邮箱地址"
+              aria-label={copy.email}
             />
           </div>
         )}
@@ -185,7 +200,7 @@ function VerifyEmailContent() {
           disabled={!email && !emailInput.trim()}
           className="mt-2 w-full"
         >
-          重新发送验证邮件
+          {copy.resendVerificationEmail}
         </Button>
         {resendMessage && (
           <p className="text-sm text-green-600" role="status">
@@ -220,9 +235,11 @@ function VerifyEmailContent() {
             />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-gray-900">验证链接无效</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          {copy.verifyEmailInvalidTitle}
+        </h2>
         <p className="text-sm text-gray-600">
-          该验证链接无效或已被使用，请重新注册或联系支持
+          {copy.verifyEmailInvalidSubtitle}
         </p>
       </div>
     );
@@ -247,18 +264,20 @@ function VerifyEmailContent() {
           />
         </svg>
       </div>
-      <h2 className="text-lg font-semibold text-gray-900">请检查您的邮箱</h2>
+      <h2 className="text-lg font-semibold text-gray-900">
+        {copy.verifyEmailCheckTitle}
+      </h2>
       <p className="text-center text-sm text-gray-600">
-        我们已向您的邮箱发送了一封验证邮件，请点击邮件中的链接完成验证。
+        {copy.verifyEmailCheckSubtitle}
       </p>
       {!email && (
         <div className="w-full">
           <Input
             type="email"
-            placeholder="请输入您的邮箱地址"
+            placeholder={copy.emailPlaceholder}
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-            aria-label="邮箱地址"
+            aria-label={copy.email}
           />
         </div>
       )}
@@ -269,7 +288,7 @@ function VerifyEmailContent() {
         variant="outline"
         className="mt-2 w-full"
       >
-        重新发送
+        {copy.resend}
       </Button>
       {resendMessage && (
         <p className="text-sm text-green-600" role="status">

@@ -34,9 +34,13 @@ const fieldBase =
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
 
+const formAlert =
+  "mb-4 rounded-[8px] border border-[#ffd5ec] bg-[#fff8fb] px-3.5 py-3 text-xs font-medium leading-5 text-[#ff4337]";
+
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
   check: "/icons/auth/check.svg",
+  cross: "/icons/auth/cross.svg",
   eye: "/icons/auth/eye.svg",
   eyeOff: "/icons/auth/eye-off.svg",
   fontSelect: "/icons/auth/font-select.svg",
@@ -298,13 +302,7 @@ export function RegisterForm() {
               </FormMotionRow>
 
               {formError && (
-                <FormMotionRow
-                  className="mb-4 rounded-[8px] border border-[#ff4337] bg-[#fff8f8] px-4 py-3 text-sm font-medium text-[#ff4337]"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  {formError}
-                </FormMotionRow>
+                <FormAlert message={formError} onClose={() => setFormError("")} />
               )}
 
               <div className="space-y-2">
@@ -468,6 +466,34 @@ export function RegisterForm() {
         </section>
       </div>
     </div>
+  );
+}
+
+function FormAlert({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <FormMotionRow className={formAlert} role="alert" aria-live="polite">
+      <span className="flex items-start justify-between gap-3">
+        <span>{message}</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="-mr-0.5 flex h-5 w-5 shrink-0 items-center justify-center text-[#ff4337] transition-colors duration-300 ease-out hover:text-[#d92d25]"
+          aria-label="Dismiss error"
+        >
+          <IconMask
+            src={authIcons.cross}
+            color="currentColor"
+            className="h-3.5 w-3.5"
+          />
+        </button>
+      </span>
+    </FormMotionRow>
   );
 }
 

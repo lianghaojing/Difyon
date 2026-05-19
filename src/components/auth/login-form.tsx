@@ -29,6 +29,12 @@ import {
 } from "@/lib/i18n/auth";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
+type LoginErrorKey =
+  | "timeout"
+  | "loginGenericError"
+  | "loginInvalidInput"
+  | "loginInvalidCredentials"
+  | "loginRateLimited";
 
 const fieldBase =
   "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#a6b0c4] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
@@ -36,9 +42,16 @@ const fieldBase =
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
 
+const formAlert =
+  "mb-4 rounded-[8px] border border-[#ffd5ec] bg-[#fff8fb] px-3.5 py-3 text-xs font-medium leading-5 text-[#ff4337]";
+
+const formStatus =
+  "mb-4 rounded-[8px] border border-[#ecedf3] bg-white px-3.5 py-3 text-xs font-medium leading-5 text-[#55637f]";
+
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
   check: "/icons/auth/check.svg",
+  cross: "/icons/auth/cross.svg",
   eye: "/icons/auth/eye.svg",
   eyeOff: "/icons/auth/eye-off.svg",
   fontSelect: "/icons/auth/font-select.svg",
@@ -51,7 +64,7 @@ export function LoginForm() {
 
   const [locale, setLocale] = useState<AuthLocale>("en");
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState<string>("");
+  const [formErrorKey, setFormErrorKey] = useState<LoginErrorKey | null>(null);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -97,6 +110,9 @@ export function LoginForm() {
   const emailValue = watch("email");
   const passwordValue = watch("password");
   const isSubmitDisabled = isPending || !isValid;
+  const message = searchParams.get("message");
+  const verified = searchParams.get("verified");
+  const formError = formErrorKey ? copy[formErrorKey] : "";
   const validation = useMemo(
     () => ({
       email: translateValidationMessage(locale, errors.email?.message),
@@ -106,11 +122,11 @@ export function LoginForm() {
   );
 
   const onSubmit = (data: LoginFormValues) => {
-    setFormError("");
+    setFormErrorKey(null);
 
     startTransition(async () => {
       const timeoutId = setTimeout(() => {
-        setFormError(copy.timeout);
+        setFormErrorKey("timeout");
         setValue("password", "");
       }, 30000);
 
@@ -124,13 +140,13 @@ export function LoginForm() {
 
         clearTimeout(timeoutId);
 
-        if (result?.error) {
-          setFormError(result.error);
+        if (result?.errorKey) {
+          setFormErrorKey(result.errorKey);
           setValue("password", "");
         }
       } catch {
         clearTimeout(timeoutId);
-        setFormError(copy.loginGenericError);
+        setFormErrorKey("loginGenericError");
         setValue("password", "");
       }
     });
@@ -249,12 +265,21 @@ export function LoginForm() {
               </FormMotionRow>
 
               {formError && (
+                <FormAlert
+                  message={formError}
+                  onClose={() => setFormErrorKey(null)}
+                />
+              )}
+
+              {!formError && (verified === "true" || message === "password-reset-success") && (
                 <FormMotionRow
-                  className="mb-4 rounded-[8px] border border-[#ff4337] bg-[#fff8f8] px-4 py-3 text-sm font-medium text-[#ff4337]"
-                  role="alert"
+                  className={formStatus}
+                  role="status"
                   aria-live="polite"
                 >
-                  {formError}
+                  {verified === "true"
+                    ? copy.emailVerifiedSuccess
+                    : copy.passwordResetSuccess}
                 </FormMotionRow>
               )}
 
@@ -338,6 +363,34 @@ export function LoginForm() {
         </section>
       </div>
     </div>
+  );
+}
+
+function FormAlert({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <FormMotionRow className={formAlert} role="alert" aria-live="polite">
+      <span className="flex items-start justify-between gap-3">
+        <span>{message}</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="-mr-0.5 flex h-5 w-5 shrink-0 items-center justify-center text-[#ff4337] transition-colors duration-300 ease-out hover:text-[#d92d25]"
+          aria-label="Dismiss error"
+        >
+          <IconMask
+            src={authIcons.cross}
+            color="currentColor"
+            className="h-3.5 w-3.5"
+          />
+        </button>
+      </span>
+    </FormMotionRow>
   );
 }
 
