@@ -88,6 +88,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       id: "existing-user-id",
       email: "user@example.com",
+      name: "Existing User",
       displayName: "Existing User",
       hashedPassword: "hash",
       emailVerified: null,
@@ -116,6 +117,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.create).mockResolvedValue({
       id: "new-user-id-123",
       email: "newuser@example.com",
+      name: "New User",
       displayName: "New User",
       hashedPassword: "hashed_password_123",
       emailVerified: null,
@@ -145,6 +147,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.create).mockResolvedValue({
       id: "user-id",
       email: "user@example.com",
+      name: "User",
       displayName: "User",
       hashedPassword: "hashed_password_123",
       emailVerified: null,
@@ -179,6 +182,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.create).mockResolvedValue({
       id: "user-id",
       email: "user@example.com",
+      name: "User",
       displayName: "User",
       hashedPassword: "hashed_password_123",
       emailVerified: null,
