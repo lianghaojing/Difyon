@@ -68,12 +68,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Generate verification token and send verification email
+    // Generate verification token and send verification email.
+    // If email delivery fails, keep the created account and let the user retry
+    // from the verification page instead of reporting a false registration failure.
     const token = await createVerificationToken(email);
-    await sendVerificationEmail(email, token);
+    let emailSent = true;
+    try {
+      await sendVerificationEmail(email, token);
+    } catch (emailError) {
+      emailSent = false;
+      console.error("Verification email send error:", emailError);
+    }
 
     return NextResponse.json(
-      { success: true, userId: user.id },
+      { success: true, userId: user.id, emailSent },
       { status: 201 }
     );
   } catch (error) {

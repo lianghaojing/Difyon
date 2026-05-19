@@ -33,7 +33,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | REG-12 | Verification email send | Done | `sendVerificationEmail` | Sends after user creation. |
 | REG-13 | Registration rate limit | Done | `register:${ip}` | 5 attempts per 15 minutes. |
 | REG-14 | Terms/privacy consent | Todo | Not present | Add before public launch if policy requires it. |
-| REG-15 | Registration email send failure policy | Partial | User is created before email send | Need decide rollback, retry, or allow resend-only recovery. |
+| REG-15 | Registration email send failure policy | Done | User creation remains successful and API returns `emailSent: false` if delivery fails | User can recover through resend verification. |
 
 ## 2. Login
 
@@ -156,7 +156,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 ## Priority Order
 
 1. P0: Enforce verified-email access policy globally if the app requires verified users. Done.
-2. P0: Confirm registration email failure policy and make it explicit.
+2. P0: Confirm registration email failure policy and make it explicit. Done.
 3. P0: Run lint/typecheck/test cleanly and upload this checklist to GitHub.
 4. P1: Add account settings basics: change name, change password, change email.
 5. P1: Add durable production rate limiting.
@@ -173,7 +173,7 @@ Use this order when continuing implementation:
 1. Verify current test suite and baseline status.
 2. Fix any failing tests without changing product behavior.
 3. Add global verified-email middleware policy or document why only the home page requires verification. Done.
-4. Decide and implement registration email failure behavior.
+4. Decide and implement registration email failure behavior. Done.
 5. Add change password page/API.
 6. Add change display name page/API.
 7. Add change email with verification.
