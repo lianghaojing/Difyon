@@ -28,6 +28,8 @@ export default auth((req) => {
     nextUrl.pathname.startsWith(route)
   );
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const isEmailVerified = (req.auth?.user as any)?.emailVerified;
 
   // Auth API 路由始终允许
   if (isApiAuthRoute) return NextResponse.next();
@@ -42,6 +44,14 @@ export default auth((req) => {
     const callbackUrl = encodeURIComponent(nextUrl.pathname + nextUrl.search);
     return NextResponse.redirect(
       new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl)
+    );
+  }
+
+  // 已登录但未验证邮箱的用户只能访问公开认证页面/API
+  if (!isPublicRoute && isLoggedIn && !isEmailVerified) {
+    const email = req.auth?.user?.email || "";
+    return NextResponse.redirect(
+      new URL(`/verify-email?email=${encodeURIComponent(email)}`, nextUrl)
     );
   }
 

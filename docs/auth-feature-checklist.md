@@ -47,7 +47,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | LOG-06 | Login rate limit | Done | `login:${ip}` | Implemented. |
 | LOG-07 | Callback URL redirect | Done | `callbackUrl` supported | Preserves destination for protected pages. |
 | LOG-08 | Login error handling | Done | Returns generic credential error | Avoids excessive detail. |
-| LOG-09 | Verified-email enforcement for protected app access | Partial | Home page redirects unverified users to `/verify-email` | Policy is not enforced globally in middleware. |
+| LOG-09 | Verified-email enforcement for protected app access | Done | `src/middleware.ts` redirects unverified users to `/verify-email` | Applies to protected routes. |
 | LOG-10 | Account lockout after repeated failures | Todo | Not present | Stronger than IP-only rate limiting. |
 | LOG-11 | Remember-me duration choice | Later | Session max age fixed at 7 days | Not required for MVP. |
 
@@ -62,7 +62,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | VER-05 | Resend verification API | Done | `src/app/api/resend-verification/route.ts` | Creates and sends a new token. |
 | VER-06 | Resend verification UI | Done | `verify-email/page.tsx` | User can request another email. |
 | VER-07 | OAuth email auto-verification | Done | `events.linkAccount` | Google-linked users are marked verified. |
-| VER-08 | Global unverified-user route guard | Todo | Only home page checks this | Middleware should enforce policy consistently if all app pages require verification. |
+| VER-08 | Global unverified-user route guard | Done | `src/middleware.ts` | Middleware enforces verification for protected routes. |
 
 ## 4. Password Recovery
 
@@ -155,7 +155,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 
 ## Priority Order
 
-1. P0: Enforce verified-email access policy globally if the app requires verified users.
+1. P0: Enforce verified-email access policy globally if the app requires verified users. Done.
 2. P0: Confirm registration email failure policy and make it explicit.
 3. P0: Run lint/typecheck/test cleanly and upload this checklist to GitHub.
 4. P1: Add account settings basics: change name, change password, change email.
@@ -172,7 +172,7 @@ Use this order when continuing implementation:
 
 1. Verify current test suite and baseline status.
 2. Fix any failing tests without changing product behavior.
-3. Add global verified-email middleware policy or document why only the home page requires verification.
+3. Add global verified-email middleware policy or document why only the home page requires verification. Done.
 4. Decide and implement registration email failure behavior.
 5. Add change password page/API.
 6. Add change display name page/API.
