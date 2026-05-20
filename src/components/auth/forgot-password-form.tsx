@@ -116,14 +116,14 @@ export function ForgotPasswordForm() {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          setFormError(copy.genericError);
+          setFormError(copy.forgotPasswordGenericError);
           return;
         }
 
         setSubmitted(true);
       } catch {
         clearTimeout(timeoutId);
-        setFormError(copy.genericError);
+        setFormError(copy.forgotPasswordGenericError);
       }
     });
   };

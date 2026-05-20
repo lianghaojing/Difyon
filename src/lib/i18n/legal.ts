@@ -7,6 +7,8 @@ type LegalSection = {
 
 type LegalPageCopy = {
   backToSignUp: string;
+  legalLabel: string;
+  contentsLabel: string;
   lastUpdated: string;
   termsTitle: string;
   termsIntro: string;
@@ -19,6 +21,8 @@ type LegalPageCopy = {
 export const legalCopy: Record<AuthLocale, LegalPageCopy> = {
   en: {
     backToSignUp: "Back to sign up",
+    legalLabel: "Legal",
+    contentsLabel: "Contents",
     lastUpdated: "Last updated: May 20, 2026",
     termsTitle: "Terms of Service",
     termsIntro:
@@ -201,6 +205,8 @@ export const legalCopy: Record<AuthLocale, LegalPageCopy> = {
   },
   zh: {
     backToSignUp: "返回注册",
+    legalLabel: "法律文件",
+    contentsLabel: "目录",
     lastUpdated: "最后更新：2026年5月20日",
     termsTitle: "服务条款",
     termsIntro:
@@ -379,6 +385,8 @@ export const legalCopy: Record<AuthLocale, LegalPageCopy> = {
   },
   ru: {
     backToSignUp: "Вернуться к регистрации",
+    legalLabel: "Юридическая информация",
+    contentsLabel: "Содержание",
     lastUpdated: "Обновлено: 20 мая 2026 г.",
     termsTitle: "Условия использования",
     termsIntro:
@@ -560,4 +568,3 @@ export const legalCopy: Record<AuthLocale, LegalPageCopy> = {
     ],
   },
 };
-

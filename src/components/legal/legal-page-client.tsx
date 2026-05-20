@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import {
   authCopy,
@@ -25,6 +26,7 @@ const authIcons = {
 };
 
 export function LegalPageClient({ page }: LegalPageClientProps) {
+  const pathname = usePathname();
   const languagePickerRef = useRef<HTMLDivElement>(null);
   const [locale, setLocale] = useState<AuthLocale>("en");
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
@@ -59,16 +61,25 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
   const sections = isTerms ? copy.terms : copy.privacy;
 
   return (
-    <main className="min-h-dvh bg-white px-5 py-8 font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif] text-[#1a1e26] sm:px-8 md:px-12">
-      <div className="mx-auto max-w-[760px]">
-        <header className="flex items-center justify-between gap-4">
-          <Link
-            href="/register"
-            className="text-sm font-semibold text-[#f953c6] transition-colors duration-300 ease-out hover:text-[#ec3abb]"
-          >
-            {copy.backToSignUp}
-          </Link>
-
+    <main className="min-h-dvh bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif] text-[#1a1e26]">
+      <header className="border-b border-[#ecedf3]">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-5 sm:px-8 md:px-12">
+          <div className="flex items-center gap-8">
+            <Link
+              href="/register"
+              className="text-[18px] font-bold tracking-[-0.03em] text-[#1a1e26] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+            >
+              Difyon
+            </Link>
+            <nav className="hidden items-center gap-5 text-sm font-semibold text-[#55637f] sm:flex">
+              <LegalNavLink href="/terms" active={pathname === "/terms"}>
+                {copy.termsTitle}
+              </LegalNavLink>
+              <LegalNavLink href="/privacy" active={pathname === "/privacy"}>
+                {copy.privacyTitle}
+              </LegalNavLink>
+            </nav>
+          </div>
           <div className="relative" ref={languagePickerRef}>
             <button
               type="button"
@@ -116,44 +127,108 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
               ))}
             </motion.div>
           </div>
-        </header>
+        </div>
+      </header>
 
+      <div className="mx-auto max-w-[1180px] px-5 py-10 sm:px-8 md:px-12 md:py-14">
         <motion.div
           key={`${page}-${locale}`}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h1 className="mt-8 text-[30px] font-bold leading-tight sm:text-[36px]">
-            {title}
-          </h1>
-          <p className="mt-3 text-sm font-medium text-[#a6b0c4]">
-            {copy.lastUpdated}
-          </p>
-          <p className="mt-5 text-base leading-7 text-[#55637f]">{intro}</p>
+          <a
+            href="/register"
+            className="inline-flex text-sm font-semibold text-[#55637f] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+          >
+            {copy.backToSignUp}
+          </a>
 
-          <div className="mt-10 space-y-8">
-            {sections.map((section) => (
-              <section key={section.title}>
-                <h2 className="text-lg font-bold text-[#1a1e26]">
-                  {section.title}
-                </h2>
-                <div className="mt-3 space-y-3">
-                  {section.body.map((paragraph) => (
-                    <p
-                      key={paragraph}
-                      className="text-sm leading-7 text-[#55637f]"
+          <section className="mt-8 border-b border-[#ecedf3] pb-10 md:pb-12">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#f953c6]">
+              {copy.legalLabel}
+            </p>
+            <h1 className="mt-4 max-w-[820px] text-[40px] font-bold leading-[1.05] tracking-[-0.045em] sm:text-[52px]">
+              {title}
+            </h1>
+            <p className="mt-5 max-w-[780px] text-[17px] font-medium leading-8 text-[#55637f]">
+              {intro}
+            </p>
+            <p className="mt-6 text-sm font-semibold text-[#a6b0c4]">
+              {copy.lastUpdated}
+            </p>
+          </section>
+
+          <div className="grid gap-10 pt-10 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-16">
+            <aside className="hidden lg:block">
+              <div className="sticky top-8 border-l border-[#ecedf3] pl-5">
+                <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-[#a6b0c4]">
+                  {copy.contentsLabel}
+                </p>
+                <nav className="space-y-3">
+                  {sections.map((section) => (
+                    <a
+                      key={section.title}
+                      href={`#${toSectionId(section.title)}`}
+                      className="block text-sm font-semibold leading-5 text-[#55637f] transition-colors duration-300 ease-out hover:text-[#f953c6]"
                     >
-                      {paragraph}
-                    </p>
+                      {section.title.replace(/^\d+\.\s*/, "")}
+                    </a>
                   ))}
-                </div>
-              </section>
-            ))}
+                </nav>
+              </div>
+            </aside>
+
+            <article className="max-w-[820px]">
+              <div className="space-y-11">
+                {sections.map((section) => (
+                  <section
+                    key={section.title}
+                    id={toSectionId(section.title)}
+                    className="scroll-mt-8 border-b border-[#f0f1f5] pb-10 last:border-b-0"
+                  >
+                    <h2 className="text-[22px] font-bold leading-tight tracking-[-0.025em] text-[#1a1e26]">
+                      {section.title}
+                    </h2>
+                    <div className="mt-5 space-y-4">
+                      {section.body.map((paragraph) => (
+                        <p
+                          key={paragraph}
+                          className="text-[15px] font-medium leading-8 text-[#55637f]"
+                        >
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </article>
           </div>
         </motion.div>
       </div>
     </main>
+  );
+}
+
+function LegalNavLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`transition-colors duration-300 ease-out ${
+        active ? "text-[#f953c6]" : "hover:text-[#1a1e26]"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -169,4 +244,11 @@ function IconMask({ src, color }: { src: string; color: string }) {
       aria-hidden="true"
     />
   );
+}
+
+function toSectionId(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5а-яё]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
 }
