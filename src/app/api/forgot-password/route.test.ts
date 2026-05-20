@@ -68,6 +68,7 @@ describe("POST /api/forgot-password", () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({
       id: "user-1",
       email: "existing@example.com",
+      name: "User",
       hashedPassword: "hashed",
       displayName: "User",
       emailVerified: null,
@@ -114,6 +115,7 @@ describe("POST /api/forgot-password", () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({
       id: "user-1",
       email: "exists@example.com",
+      name: "User",
       hashedPassword: "hashed",
       displayName: "User",
       emailVerified: null,

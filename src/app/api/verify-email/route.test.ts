@@ -84,6 +84,7 @@ describe("GET /api/verify-email", () => {
     vi.mocked(prisma.user.update).mockResolvedValue({
       id: "user-id",
       email: "user@example.com",
+      name: "User",
       displayName: "User",
       hashedPassword: "hash",
       emailVerified: new Date(),
@@ -133,6 +134,7 @@ describe("GET /api/verify-email", () => {
       return {
         id: "user-id",
         email: "user@example.com",
+        name: "User",
         displayName: "User",
         hashedPassword: "hash",
         emailVerified: new Date(),

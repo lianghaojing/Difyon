@@ -33,4 +33,14 @@ export default {
     signIn: "/login",
     error: "/login",
   },
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (session.user as any).emailVerified = token.emailVerified as boolean;
+      }
+      return session;
+    },
+  },
 } satisfies NextAuthConfig;

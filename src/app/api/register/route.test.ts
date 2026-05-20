@@ -88,6 +88,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       id: "existing-user-id",
       email: "user@example.com",
+      name: "Existing User",
       displayName: "Existing User",
       hashedPassword: "hash",
       emailVerified: null,
@@ -116,6 +117,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.create).mockResolvedValue({
       id: "new-user-id-123",
       email: "newuser@example.com",
+      name: "New User",
       displayName: "New User",
       hashedPassword: "hashed_password_123",
       emailVerified: null,
@@ -138,6 +140,7 @@ describe("POST /api/register", () => {
     expect(res.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.userId).toBe("new-user-id-123");
+    expect(data.emailSent).toBe(true);
   });
 
   it("hashes password before storing", async () => {
@@ -145,6 +148,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.create).mockResolvedValue({
       id: "user-id",
       email: "user@example.com",
+      name: "User",
       displayName: "User",
       hashedPassword: "hashed_password_123",
       emailVerified: null,
@@ -179,6 +183,7 @@ describe("POST /api/register", () => {
     vi.mocked(prisma.user.create).mockResolvedValue({
       id: "user-id",
       email: "user@example.com",
+      name: "User",
       displayName: "User",
       hashedPassword: "hashed_password_123",
       emailVerified: null,
@@ -202,6 +207,40 @@ describe("POST /api/register", () => {
       "user@example.com",
       "verification-token-abc"
     );
+  });
+
+  it("still returns 201 when verification email fails after user creation", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.user.create).mockResolvedValue({
+      id: "user-id",
+      email: "user@example.com",
+      name: "User",
+      displayName: "User",
+      hashedPassword: "hashed_password_123",
+      emailVerified: null,
+      image: null,
+      tokenVersion: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    vi.mocked(sendVerificationEmail).mockRejectedValueOnce(
+      new Error("Email provider unavailable")
+    );
+
+    const req = createRequest({
+      email: "user@example.com",
+      displayName: "User",
+      password: "Password123",
+      confirmPassword: "Password123",
+    });
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.userId).toBe("user-id");
+    expect(data.emailSent).toBe(false);
   });
 
   it("returns 500 when an unexpected error occurs", async () => {

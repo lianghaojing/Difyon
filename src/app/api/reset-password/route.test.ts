@@ -141,6 +141,7 @@ describe("POST /api/reset-password", () => {
     vi.mocked(prisma.user.update).mockResolvedValueOnce({
       id: "user-1",
       email: "user@example.com",
+      name: "User",
       hashedPassword: "new-hashed-password",
       displayName: "User",
       emailVerified: null,
@@ -228,6 +229,7 @@ describe("POST /api/reset-password", () => {
     vi.mocked(prisma.user.update).mockResolvedValueOnce({
       id: "user-1",
       email: "user@example.com",
+      name: "User",
       hashedPassword: "new-hashed-password",
       displayName: "User",
       emailVerified: null,
