@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 
 export default async function Home() {
@@ -42,6 +43,13 @@ export default async function Home() {
                 )}
               </dl>
             </div>
+
+            <Link
+              href="/account"
+              className="flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              进入个人中心
+            </Link>
 
             <LogoutButton className="w-full rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" />
           </div>

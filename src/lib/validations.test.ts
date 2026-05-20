@@ -7,6 +7,7 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  changePasswordSchema,
   calculatePasswordStrength,
 } from "./validations";
 
@@ -236,6 +237,43 @@ describe("resetPasswordSchema", () => {
     const result = resetPasswordSchema.safeParse({
       password: "weak",
       confirmPassword: "weak",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("changePasswordSchema", () => {
+  const validData = {
+    currentPassword: "OldPass1",
+    newPassword: "NewPass1",
+    confirmPassword: "NewPass1",
+  };
+
+  it("accepts valid password change data", () => {
+    expect(changePasswordSchema.safeParse(validData).success).toBe(true);
+  });
+
+  it("rejects an empty current password", () => {
+    const result = changePasswordSchema.safeParse({
+      ...validData,
+      currentPassword: "",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects weak new passwords", () => {
+    const result = changePasswordSchema.safeParse({
+      ...validData,
+      newPassword: "weak",
+      confirmPassword: "weak",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-matching new passwords", () => {
+    const result = changePasswordSchema.safeParse({
+      ...validData,
+      confirmPassword: "Different1",
     });
     expect(result.success).toBe(false);
   });

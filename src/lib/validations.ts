@@ -53,6 +53,17 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "请输入当前密码"),
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "请确认新密码"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "两次输入的新密码不一致",
+    path: ["confirmPassword"],
+  });
+
 // 密码强度计算
 export type PasswordStrength = "weak" | "medium" | "strong" | "very-strong";
 
