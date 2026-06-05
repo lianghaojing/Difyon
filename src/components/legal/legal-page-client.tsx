@@ -21,6 +21,7 @@ type LegalPageClientProps = {
 };
 
 const authIcons = {
+  brandLogo: "/icons/auth/组 41642.svg",
   check: "/icons/auth/check.svg",
   fontSelect: "/icons/auth/font-select.svg",
 };
@@ -63,13 +64,18 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
   return (
     <main className="min-h-dvh bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif] text-[#1a1e26]">
       <header className="border-b border-[#ecedf3]">
-        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-5 sm:px-8 md:px-12">
+        <div className="mx-auto flex h-[78px] max-w-[1180px] items-center justify-between gap-4 px-5 sm:px-8 md:px-12">
           <div className="flex items-center gap-8">
             <Link
               href="/register"
-              className="text-[18px] font-bold tracking-[-0.03em] text-[#1a1e26] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+              className="inline-flex items-center"
+              aria-label="Difyon"
             >
-              Difyon
+              <img
+                src={authIcons.brandLogo}
+                alt="Difyon"
+                className="h-6 w-auto"
+              />
             </Link>
             <nav className="hidden items-center gap-5 text-sm font-semibold text-[#55637f] sm:flex">
               <LegalNavLink href="/terms" active={pathname === "/terms"}>

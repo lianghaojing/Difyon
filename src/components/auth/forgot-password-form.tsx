@@ -39,6 +39,7 @@ const formAlert =
 
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
+  brandLogo: "/icons/auth/组 41642.svg",
   check: "/icons/auth/check.svg",
   cross: "/icons/auth/cross.svg",
   fontSelect: "/icons/auth/font-select.svg",
@@ -129,14 +130,21 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <div className="min-h-dvh bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 py-6 sm:px-8 sm:py-8 md:px-12 md:py-12 lg:px-16">
-        <header className="flex items-center justify-between">
-          <Link href="/" className="text-base font-bold text-[#1a1e26]">
-            {copy.brand}
+    <div className="min-h-dvh overflow-x-hidden bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
+      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 sm:px-8 md:px-12 lg:h-dvh lg:px-16">
+        <header className="relative flex h-[78px] shrink-0 items-center justify-center sm:justify-between">
+          <Link href="/" className="inline-flex items-center" aria-label={copy.brand}>
+            <img
+              src={authIcons.brandLogo}
+              alt={copy.brand}
+              className="h-6 w-auto"
+            />
           </Link>
 
-          <div className="relative" ref={languagePickerRef}>
+          <div
+            className="absolute right-[max(20px,calc(100%-370px))] top-1/2 -translate-y-1/2 sm:relative sm:right-auto sm:top-auto sm:translate-y-0"
+            ref={languagePickerRef}
+          >
             <button
               type="button"
               onClick={() => setIsLanguageOpen((value) => !value)}
@@ -185,19 +193,19 @@ export function ForgotPasswordForm() {
           </div>
         </header>
 
-        <section className="flex flex-1 items-start justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-[58px]">
+        <section className="flex w-full min-w-0 flex-1 items-center justify-start py-8 sm:justify-center lg:py-0">
           <motion.div
             key={`${locale}-${submitted ? "sent" : "form"}`}
-            className="w-full max-w-[420px]"
+            className="w-[310px] min-w-0 sm:w-full sm:max-w-[420px]"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="mb-[30px] text-left">
-              <h1 className="text-[30px] font-bold leading-tight text-[#1a1e26] sm:text-[36px]">
+            <div className="mb-5 text-left lg:mb-4">
+              <h1 className="text-[30px] font-bold leading-tight text-[#1a1e26] sm:text-[36px] lg:text-[34px]">
                 {submitted ? copy.checkEmailTitle : copy.forgotPasswordTitle}
               </h1>
-              <p className="mt-3 text-base leading-7 text-[#55637f] sm:text-lg">
+              <p className="mt-3 text-base leading-7 text-[#55637f] sm:text-lg lg:mt-2">
                 {submitted ? copy.checkEmailSubtitle : copy.forgotPasswordSubtitle}
               </p>
             </div>
@@ -216,7 +224,7 @@ export function ForgotPasswordForm() {
                   {copy.checkEmailBody}
                 </FormMotionRow>
 
-                <FormMotionRow className="mt-8">
+                <FormMotionRow className="mt-8 lg:mt-5">
                   <Link
                     href="/login"
                     className="group flex h-[42px] w-full items-center justify-center rounded-[8px] bg-[#f953c6] text-sm font-semibold text-white transition-colors duration-300 ease-out hover:bg-[#ec3abb]"
@@ -242,7 +250,7 @@ export function ForgotPasswordForm() {
                   <FormAlert message={formError} onClose={() => setFormError("")} />
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2 lg:space-y-1">
                   <FloatingInput
                     id="email"
                     label={copy.email}
@@ -256,7 +264,7 @@ export function ForgotPasswordForm() {
                   />
                 </div>
 
-                <FormMotionRow className="mt-8">
+                <FormMotionRow className="mt-8 lg:mt-5">
                   <motion.button
                     type="submit"
                     disabled={isSubmitDisabled}
@@ -275,7 +283,7 @@ export function ForgotPasswordForm() {
                   </motion.button>
                 </FormMotionRow>
 
-                <FormMotionRow className="mt-5 text-center text-sm font-medium text-[#55637f]">
+                <FormMotionRow className="mt-5 text-center text-sm font-medium text-[#55637f] lg:mt-3">
                   {copy.rememberedPassword}{" "}
                   <Link
                     href="/login"

@@ -39,6 +39,7 @@ const formAlert =
 
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
+  brandLogo: "/icons/auth/组 41642.svg",
   check: "/icons/auth/check.svg",
   cross: "/icons/auth/cross.svg",
   eye: "/icons/auth/eye.svg",
@@ -194,17 +195,22 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="min-h-dvh bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 py-6 sm:px-8 sm:py-8 md:px-12 md:py-12 lg:px-16">
-        <header className="flex items-center justify-between">
+    <div className="min-h-dvh overflow-x-hidden bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
+      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 sm:px-8 md:px-12 lg:h-dvh lg:px-16">
+        <header className="relative flex h-[78px] shrink-0 items-center justify-center sm:justify-between">
           <Link
             href="/"
-            className="text-base font-bold tracking-[0] text-[#1a1e26]"
+            className="inline-flex items-center"
+            aria-label={copy.brand}
           >
-            {copy.brand}
+            <img
+              src={authIcons.brandLogo}
+              alt={copy.brand}
+              className="h-6 w-auto"
+            />
           </Link>
 
-          <div className="relative" ref={languagePickerRef}>
+          <div className="absolute right-[max(20px,calc(100%-370px))] top-1/2 -translate-y-1/2 sm:relative sm:right-auto sm:top-auto sm:translate-y-0" ref={languagePickerRef}>
             <button
               type="button"
               onClick={() => setIsLanguageOpen((value) => !value)}
@@ -253,19 +259,19 @@ export function RegisterForm() {
           </div>
         </header>
 
-        <section className="flex flex-1 items-start justify-center pt-12 sm:pt-16 md:pt-20 lg:pt-[58px]">
+        <section className="flex w-full min-w-0 flex-1 items-start justify-start pt-8 sm:justify-center sm:pt-8 md:pt-8 lg:pt-2">
           <motion.div
             key={locale}
-            className="w-full max-w-[420px]"
+            className="w-[310px] min-w-0 sm:w-full sm:max-w-[420px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <div className="mb-[30px] text-left">
-              <h1 className="text-[30px] font-bold leading-tight tracking-[0] text-[#1a1e26] sm:text-[36px]">
+            <div className="mb-5 text-left lg:mb-4">
+              <h1 className="text-[30px] font-bold leading-tight tracking-[0] text-[#1a1e26] sm:text-[36px] lg:text-[34px]">
                 {copy.registerTitle}
               </h1>
-              <p className="mt-3 text-base leading-7 text-[#55637f] sm:text-lg">
+              <p className="mt-3 text-base leading-7 text-[#55637f] sm:text-lg lg:mt-2">
                 {copy.registerSubtitle}
               </p>
             </div>
@@ -293,7 +299,7 @@ export function RegisterForm() {
                 </button>
               </FormMotionRow>
 
-              <FormMotionRow className="my-[30px] flex items-center gap-4">
+              <FormMotionRow className="my-6 flex items-center gap-4 lg:my-4">
                 <span className="h-px flex-1 bg-[#f0f1f5]" />
                 <span className="text-sm font-medium text-[#a6b0c4]">
                   {copy.separator}
@@ -305,7 +311,7 @@ export function RegisterForm() {
                 <FormAlert message={formError} onClose={() => setFormError("")} />
               )}
 
-              <div className="space-y-2">
+              <div className="space-y-2 lg:space-y-1">
                 <FloatingInput
                   id="email"
                   label={copy.email}
@@ -392,7 +398,7 @@ export function RegisterForm() {
                 />
               </div>
 
-              <FormMotionRow className="mt-6">
+              <FormMotionRow className="mt-5 lg:mt-3">
                 <div className="flex items-start gap-3 text-sm font-semibold leading-5 text-[#55637f]">
                   <input
                     id="acceptedTerms"
@@ -432,7 +438,7 @@ export function RegisterForm() {
                 </div>
               </FormMotionRow>
 
-              <FormMotionRow className="mt-10">
+              <FormMotionRow className="mt-6 lg:mt-4">
                 <motion.button
                   type="submit"
                   disabled={isSubmitDisabled}
@@ -451,7 +457,7 @@ export function RegisterForm() {
                 </motion.button>
               </FormMotionRow>
 
-              <FormMotionRow className="mt-5 text-center text-sm font-medium text-[#55637f]">
+              <FormMotionRow className="mt-4 text-center text-sm font-medium text-[#55637f] lg:mt-3">
                 {copy.alreadyHaveAccount}{" "}
                 <Link
                   href="/login"

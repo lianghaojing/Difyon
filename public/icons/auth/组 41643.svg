@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 23 23">
+  <g id="组_41643" data-name="组 41643" transform="translate(-2441 9405)">
+    <rect id="矩形_8959" data-name="矩形 8959" width="23" height="23" transform="translate(2441 -9405)" fill="rgba(255,255,255,0)"/>
+    <g id="组_19956" data-name="组 19956" transform="translate(2441 -9402.778)">
+      <path id="路径_32829" data-name="路径 32829" d="M0,0A8.889,8.889,0,0,1,8.889,8.889,8.889,8.889,0,0,1,0,17.778" transform="translate(0 0)" fill="#f953c6"/>
+      <path id="路径_32830" data-name="路径 32830" d="M58.889,0h0A8.889,8.889,0,0,0,50,8.889,8.889,8.889,0,0,0,58.889,0" transform="translate(-41.111 0)" fill="#f953c6"/>
+      <path id="路径_32831" data-name="路径 32831" d="M50,50h0a8.889,8.889,0,0,0,8.889,8.889A8.889,8.889,0,0,0,50,50" transform="translate(-41.111 -41.111)" fill="#f953c6"/>
+      <path id="路径_32832" data-name="路径 32832" d="M79.444,25A4.444,4.444,0,0,1,75,29.444a4.444,4.444,0,0,1,4.444,4.444,4.445,4.445,0,0,1,4.444-4.444A4.445,4.445,0,0,1,79.444,25" transform="translate(-61.667 -20.556)" fill="#f953c6"/>
+    </g>
+  </g>
+</svg>

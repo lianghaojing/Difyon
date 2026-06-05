@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BrandLoading } from "@/components/ui/brand-loading";
 import {
   authCopy,
+  authLocales,
   resolveAuthLocale,
   type AuthLocale,
 } from "@/lib/i18n/auth";
@@ -17,6 +19,12 @@ type VerifyState =
   | "expired"
   | "invalid"
   | "check-email";
+
+const authIcons = {
+  brandLogo: "/icons/auth/组 41642.svg",
+  check: "/icons/auth/check.svg",
+  fontSelect: "/icons/auth/font-select.svg",
+};
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -32,6 +40,8 @@ function VerifyEmailContent() {
   const [resendError, setResendError] = useState<string | null>(null);
   const [emailInput, setEmailInput] = useState("");
   const [locale, setLocale] = useState<AuthLocale>("en");
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const languagePickerRef = useRef<HTMLDivElement>(null);
 
   // Resolve email from URL param or sessionStorage
   const [email, setEmail] = useState<string | null>(emailParam);
@@ -40,6 +50,24 @@ function VerifyEmailContent() {
   useEffect(() => {
     setLocale(resolveAuthLocale(window.navigator.language));
   }, []);
+
+  useEffect(() => {
+    if (!isLanguageOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        languagePickerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIsLanguageOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isLanguageOpen]);
 
   useEffect(() => {
     if (emailParam) {
@@ -121,8 +149,78 @@ function VerifyEmailContent() {
     }
   }, [copy, email, emailInput]);
 
+  const renderShell = (children: ReactNode) => (
+    <div className="min-h-dvh overflow-x-hidden bg-white font-['IBM_Plex_Sans','Noto_Sans_SC','Noto_Sans',sans-serif]">
+      <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 sm:px-8 md:px-12 lg:h-dvh lg:px-16">
+        <header className="relative flex h-[78px] shrink-0 items-center justify-center sm:justify-between">
+          <Link href="/" className="inline-flex items-center" aria-label={copy.brand}>
+            <img
+              src={authIcons.brandLogo}
+              alt={copy.brand}
+              className="h-6 w-auto"
+            />
+          </Link>
+
+          <div
+            className="absolute right-[max(20px,calc(100%-370px))] top-1/2 -translate-y-1/2 sm:relative sm:right-auto sm:top-auto sm:translate-y-0"
+            ref={languagePickerRef}
+          >
+            <button
+              type="button"
+              onClick={() => setIsLanguageOpen((value) => !value)}
+              className="flex h-10 min-w-[72px] items-center justify-center gap-2 rounded-[12px] border border-[#ecedf3] bg-white px-3 text-xs font-semibold text-[#1a1e26] shadow-[inset_0_-2px_0_#ecedf3] outline-none transition-colors duration-300 ease-out hover:bg-[#f9fafb] focus-visible:border-[#f953c6] focus-visible:ring-2 focus-visible:ring-[#f953c6]/20"
+              aria-haspopup="listbox"
+              aria-expanded={isLanguageOpen}
+            >
+              <IconMask src={authIcons.fontSelect} color="#55637f" />
+              {copy.languages[locale]}
+            </button>
+
+            <div
+              className={`absolute right-0 top-12 z-20 w-[132px] overflow-hidden rounded-[12px] border border-[#ecedf3] bg-white p-1 shadow-[0_18px_45px_rgba(26,30,38,0.12)] transition duration-150 ease-out ${
+                isLanguageOpen
+                  ? "translate-y-0 scale-100 opacity-100"
+                  : "pointer-events-none -translate-y-1.5 scale-[0.98] opacity-0"
+              }`}
+              role="listbox"
+            >
+              {authLocales.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => {
+                    setLocale(item);
+                    setIsLanguageOpen(false);
+                  }}
+                  className={`flex h-9 w-full items-center justify-between rounded-[8px] px-3 text-left text-xs font-semibold transition-colors duration-300 ease-out ${
+                    locale === item
+                      ? "text-[#f953c6]"
+                      : "text-[#55637f] hover:bg-[#f9fafb] hover:text-[#1a1e26]"
+                  }`}
+                  role="option"
+                  aria-selected={locale === item}
+                >
+                  {copy.languages[item]}
+                  {locale === item && (
+                    <IconMask src={authIcons.check} color="#f953c6" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        <section className="flex w-full min-w-0 flex-1 items-center justify-start py-8 sm:justify-center lg:py-0">
+          <div className="w-[310px] min-w-0 sm:w-full sm:max-w-[420px]">
+            {children}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+
   if (state === "loading") {
-    return (
+    return renderShell(
       <div className="py-8">
         <BrandLoading label={copy.verifyEmailLoading} />
       </div>
@@ -130,7 +228,7 @@ function VerifyEmailContent() {
   }
 
   if (state === "success") {
-    return (
+    return renderShell(
       <div className="flex flex-col items-center gap-4 py-8">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
           <svg
@@ -159,7 +257,7 @@ function VerifyEmailContent() {
   }
 
   if (state === "expired") {
-    return (
+    return renderShell(
       <div className="flex flex-col items-center gap-4 py-8">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
           <svg
@@ -217,7 +315,7 @@ function VerifyEmailContent() {
   }
 
   if (state === "invalid") {
-    return (
+    return renderShell(
       <div className="flex flex-col items-center gap-4 py-8">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
           <svg
@@ -246,7 +344,7 @@ function VerifyEmailContent() {
   }
 
   // state === "check-email"
-  return (
+  return renderShell(
     <div className="flex flex-col items-center gap-4 py-8">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
         <svg
@@ -301,6 +399,28 @@ function VerifyEmailContent() {
         </p>
       )}
     </div>
+  );
+}
+
+function IconMask({
+  src,
+  color,
+  className = "",
+}: {
+  src: string;
+  color: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`h-[14px] w-[14px] shrink-0 ${className}`}
+      aria-hidden="true"
+      style={{
+        backgroundColor: color,
+        WebkitMask: `url(${src}) center / contain no-repeat`,
+        mask: `url(${src}) center / contain no-repeat`,
+      }}
+    />
   );
 }
 
