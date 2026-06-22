@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { LogoutButton } from "@/components/auth/logout-button";
+import Link from "next/link";
 
 export default async function Home() {
   const session = await auth();
@@ -42,6 +43,13 @@ export default async function Home() {
                 )}
               </dl>
             </div>
+
+            <Link
+              href="/account"
+              className="flex h-[42px] w-full items-center justify-center rounded-[8px] bg-[#f953c6] px-5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#ec3abb]"
+            >
+              进入个人中心
+            </Link>
 
             <LogoutButton className="w-full rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" />
           </div>

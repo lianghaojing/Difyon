@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { forgotPasswordSchema } from "@/lib/validations";
-import { checkRateLimit, FORGOT_PASSWORD_RATE_LIMIT } from "@/lib/rate-limit";
+import {
+  checkRateLimitForRequest,
+  FORGOT_PASSWORD_RATE_LIMIT,
+} from "@/lib/rate-limit";
 import { createPasswordResetToken } from "@/lib/tokens";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +16,10 @@ export async function POST(req: NextRequest) {
       req.headers.get("x-real-ip") ||
       "unknown";
     const rateLimitKey = `forgot-password:${ip}`;
-    const rateLimit = checkRateLimit(rateLimitKey, FORGOT_PASSWORD_RATE_LIMIT);
+    const rateLimit = await checkRateLimitForRequest(
+      rateLimitKey,
+      FORGOT_PASSWORD_RATE_LIMIT
+    );
 
     if (!rateLimit.allowed) {
       return NextResponse.json(

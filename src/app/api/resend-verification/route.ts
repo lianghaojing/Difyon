@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  checkRateLimit,
+  checkRateLimitForRequest,
   RESEND_VERIFICATION_RATE_LIMIT,
 } from "@/lib/rate-limit";
 import { emailSchema } from "@/lib/validations";
@@ -22,7 +22,10 @@ export async function POST(req: NextRequest) {
 
     // Rate limiting by email (3 per 5 min)
     const rateLimitKey = `resend-verification:${email}`;
-    const rateLimit = checkRateLimit(rateLimitKey, RESEND_VERIFICATION_RATE_LIMIT);
+    const rateLimit = await checkRateLimitForRequest(
+      rateLimitKey,
+      RESEND_VERIFICATION_RATE_LIMIT
+    );
 
     if (!rateLimit.allowed) {
       return NextResponse.json(

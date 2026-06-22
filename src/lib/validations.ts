@@ -25,9 +25,11 @@ export const passwordSchema = z
 export const registerSchema = z
   .object({
     email: emailSchema,
-    displayName: displayNameSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, "请确认密码"),
+    acceptedTerms: z.literal(true, {
+      error: "请先同意服务条款和隐私政策",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "两次输入的密码不一致",
@@ -50,6 +52,17 @@ export const resetPasswordSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "两次输入的密码不一致",
+    path: ["confirmPassword"],
+  });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "请输入当前密码"),
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "请确认新密码"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "两次输入的新密码不一致",
     path: ["confirmPassword"],
   });
 

@@ -19,9 +19,25 @@ model User {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
-  accounts Account[]
+  accounts       Account[]
+  consentRecords ConsentRecord[]
 
   @@map("users")
+}
+
+model ConsentRecord {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  termsVersion   String   @map("terms_version")
+  privacyVersion String   @map("privacy_version")
+  method         String
+  acceptedAt     DateTime @default(now()) @map("accepted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, termsVersion, privacyVersion])
+  @@index([userId])
+  @@map("consent_records")
 }
 
 model Account {
@@ -64,4 +80,14 @@ model PasswordResetToken {
   @@unique([identifier, token])
   @@index([token])
   @@map("password_reset_tokens")
+}
+
+model RateLimitEntry {
+  key         String    @id
+  count       Int
+  windowStart DateTime  @map("window_start")
+  lockedUntil DateTime? @map("locked_until")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("rate_limit_entries")
 }

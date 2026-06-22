@@ -46,6 +46,11 @@ export const authCopy = {
     agreePrefix: "I agree to the",
     terms: "Terms",
     privacy: "Privacy Policy",
+    googleConsentTitle: "Continue with Google?",
+    googleConsentBody:
+      "By continuing, you agree to the Terms and Privacy Policy.",
+    cancel: "Cancel",
+    agreeAndContinue: "Agree and continue",
     createAccount: "Create account",
     alreadyHaveAccount: "Already have an account?",
     login: "Log In",
@@ -82,6 +87,8 @@ export const authCopy = {
     verifyEmailCheckTitle: "Check your email",
     verifyEmailCheckSubtitle:
       "We sent you a verification email. Click the link in the email to finish setup.",
+    verifyEmailDeliveryFailed:
+      "Your account was created, but the verification email could not be sent. Use resend to try again.",
     verifyEmailAddressRequired: "Please enter your email address.",
     verifyEmailResent: "Verification email resent. Please check your inbox.",
     verifyEmailRateLimited: "Too many requests. Please try again later.",
@@ -151,6 +158,10 @@ export const authCopy = {
     agreePrefix: "我同意",
     terms: "服务条款",
     privacy: "隐私政策",
+    googleConsentTitle: "继续使用 Google 注册？",
+    googleConsentBody: "继续即表示您同意《服务条款》和《隐私政策》。",
+    cancel: "取消",
+    agreeAndContinue: "同意并继续",
     createAccount: "创建账户",
     alreadyHaveAccount: "已有账户？",
     login: "登录",
@@ -184,6 +195,8 @@ export const authCopy = {
     verifyEmailInvalidSubtitle: "该验证链接无效或已被使用。",
     verifyEmailCheckTitle: "请检查您的邮箱",
     verifyEmailCheckSubtitle: "我们已向您的邮箱发送了一封验证邮件，请点击邮件中的链接完成验证。",
+    verifyEmailDeliveryFailed:
+      "账户已创建，但验证邮件发送失败。请点击重新发送后再检查邮箱。",
     verifyEmailAddressRequired: "请输入邮箱地址。",
     verifyEmailResent: "验证邮件已重新发送，请检查您的邮箱。",
     verifyEmailRateLimited: "发送过于频繁，请稍后重试。",
@@ -259,6 +272,11 @@ export const authCopy = {
     agreePrefix: "Я принимаю",
     terms: "Условия",
     privacy: "Политику конфиденциальности",
+    googleConsentTitle: "Продолжить с Google?",
+    googleConsentBody:
+      "Продолжая, вы соглашаетесь с Условиями и Политикой конфиденциальности.",
+    cancel: "Отмена",
+    agreeAndContinue: "Согласиться и продолжить",
     createAccount: "Создать аккаунт",
     alreadyHaveAccount: "Уже есть аккаунт?",
     login: "Войти",
@@ -296,6 +314,8 @@ export const authCopy = {
     verifyEmailCheckTitle: "Проверьте почту",
     verifyEmailCheckSubtitle:
       "Мы отправили письмо подтверждения. Перейдите по ссылке в письме, чтобы завершить настройку.",
+    verifyEmailDeliveryFailed:
+      "Аккаунт создан, но письмо не отправлено. Нажмите повторную отправку.",
     verifyEmailAddressRequired: "Введите электронную почту.",
     verifyEmailResent: "Письмо подтверждения отправлено. Проверьте почту.",
     verifyEmailRateLimited: "Слишком много запросов. Попробуйте позже.",

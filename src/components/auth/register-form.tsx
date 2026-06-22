@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -49,10 +50,12 @@ const authIcons = {
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const languagePickerRef = useRef<HTMLDivElement>(null);
   const [locale, setLocale] = useState<AuthLocale>("en");
   const [formError, setFormError] = useState<string>("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleConsentOpen, setIsGoogleConsentOpen] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -62,6 +65,12 @@ export function RegisterForm() {
   useEffect(() => {
     setLocale(resolveAuthLocale(window.navigator.language));
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("googleConsent") === "required") {
+      setIsGoogleConsentOpen(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!isLanguageOpen) return;
@@ -94,15 +103,14 @@ export function RegisterForm() {
     mode: "onChange",
     defaultValues: {
       email: "",
-      displayName: "User",
       password: "",
       confirmPassword: "",
+      acceptedTerms: true,
     },
   });
 
   const passwordValue = watch("password");
   const emailValue = watch("email");
-  const displayNameValue = watch("displayName");
   const confirmPasswordValue = watch("confirmPassword");
   const isBusy = isSubmitting || isGoogleLoading;
   const isSubmitDisabled = isBusy || !acceptedTerms || !isValid;
@@ -120,9 +128,6 @@ export function RegisterForm() {
         email: shouldShowError(emailValue)
           ? translateValidationMessage(locale, emailError)
           : undefined,
-        displayName: shouldShowError(displayNameValue)
-          ? translateValidationMessage(locale, errors.displayName?.message)
-          : undefined,
         password: !isPasswordFocused && shouldShowError(passwordValue)
           ? translateValidationMessage(locale, errors.password?.message)
           : undefined,
@@ -133,7 +138,6 @@ export function RegisterForm() {
     },
     [
       confirmPasswordValue,
-      displayNameValue,
       emailValue,
       errors,
       isSubmitted,
@@ -151,7 +155,7 @@ export function RegisterForm() {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, acceptedTerms }),
         signal: AbortSignal.timeout(30000),
       });
 
@@ -164,6 +168,7 @@ export function RegisterForm() {
         );
         return;
       }
+      const result = await response.json();
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("verifyEmail", data.email);
@@ -175,7 +180,10 @@ export function RegisterForm() {
         redirect: false,
       });
 
-      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
+      const delivery = result.emailSent === false ? "&delivery=failed" : "";
+      router.push(
+        `/verify-email?email=${encodeURIComponent(data.email)}${delivery}`
+      );
     } catch (error) {
       if (error instanceof DOMException && error.name === "TimeoutError") {
         setFormError(copy.timeout);
@@ -185,13 +193,29 @@ export function RegisterForm() {
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const continueWithGoogle = async () => {
     setIsGoogleLoading(true);
+    setIsGoogleConsentOpen(false);
     try {
+      const response = await fetch("/api/consent/google", { method: "POST" });
+      if (!response.ok) {
+        setFormError(copy.genericError);
+        setIsGoogleLoading(false);
+        return;
+      }
       await signIn("google", { callbackUrl: "/" });
     } catch {
       setIsGoogleLoading(false);
     }
+  };
+
+  const handleGoogleSignUp = () => {
+    if (acceptedTerms) {
+      void continueWithGoogle();
+      return;
+    }
+
+    setIsGoogleConsentOpen(true);
   };
 
   return (
@@ -259,7 +283,7 @@ export function RegisterForm() {
           </div>
         </header>
 
-        <section className="flex w-full min-w-0 flex-1 items-start justify-start pt-8 sm:justify-center sm:pt-8 md:pt-8 lg:pt-2">
+        <section className="flex w-full min-w-0 flex-1 items-center justify-start py-8 sm:justify-center lg:py-0">
           <motion.div
             key={locale}
             className="w-[310px] min-w-0 sm:w-full sm:max-w-[420px]"
@@ -322,8 +346,6 @@ export function RegisterForm() {
                   error={validation.email}
                   {...register("email", { onBlur: () => trigger("email") })}
                 />
-
-                <input type="hidden" {...register("displayName")} />
 
                 <div className="relative">
                   <FloatingInput
@@ -471,6 +493,53 @@ export function RegisterForm() {
           </motion.div>
         </section>
       </div>
+      {isGoogleConsentOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a1e26]/35 px-5"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsGoogleConsentOpen(false);
+            }
+          }}
+        >
+          <div
+            className="w-full max-w-[400px] rounded-[8px] bg-white p-6 shadow-[0_24px_70px_rgba(26,30,38,0.2)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="google-consent-title"
+          >
+            <h2
+              id="google-consent-title"
+              className="text-xl font-bold text-[#1a1e26]"
+            >
+              {copy.googleConsentTitle}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[#55637f]">
+              {copy.googleConsentBody}
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsGoogleConsentOpen(false)}
+                className="h-[42px] rounded-[8px] border border-[#ecedf3] bg-white px-5 text-sm font-semibold text-[#55637f] transition-colors duration-300 hover:bg-[#f9fafb]"
+              >
+                {copy.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAcceptedTerms(true);
+                  void continueWithGoogle();
+                }}
+                className="h-[42px] rounded-[8px] bg-[#f953c6] px-5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#ec3abb]"
+              >
+                {copy.agreeAndContinue}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,15 +13,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const isDisabled = disabled || loading;
 
     const baseClasses =
-      "inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+      "inline-flex h-[42px] items-center justify-center rounded-[8px] px-5 text-sm font-semibold transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:bg-[#ecedf3] disabled:text-[#a6b0c4]";
 
     const variantClasses = {
       primary:
-        "bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-blue-600",
+        "bg-[#f953c6] text-white hover:bg-[#ec3abb] focus-visible:outline-[#f953c6]",
       secondary:
-        "bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:outline-gray-500",
+        "bg-[#f4f5f8] text-[#1a1e26] hover:bg-[#ecedf3] focus-visible:outline-[#55637f]",
       outline:
-        "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:outline-gray-500",
+        "border border-[#ecedf3] bg-white text-[#55637f] hover:bg-[#f9fafb] focus-visible:outline-[#55637f]",
     };
 
     return (

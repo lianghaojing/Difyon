@@ -122,9 +122,9 @@ describe("passwordSchema", () => {
 describe("registerSchema", () => {
   const validData = {
     email: "user@example.com",
-    displayName: "John Doe",
     password: "Password1",
     confirmPassword: "Password1",
+    acceptedTerms: true as const,
   };
 
   it("accepts valid registration data", () => {
@@ -151,8 +151,11 @@ describe("registerSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects when displayName is empty", () => {
-    const result = registerSchema.safeParse({ ...validData, displayName: "" });
+  it("rejects when terms are not accepted", () => {
+    const result = registerSchema.safeParse({
+      ...validData,
+      acceptedTerms: false,
+    });
     expect(result.success).toBe(false);
   });
 

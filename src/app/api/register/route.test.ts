@@ -58,6 +58,7 @@ describe("POST /api/register", () => {
       displayName: "A",
       password: "weak",
       confirmPassword: "weak",
+      acceptedTerms: true,
     });
 
     const res = await POST(req);
@@ -74,6 +75,7 @@ describe("POST /api/register", () => {
       displayName: "Test User",
       password: "Password123",
       confirmPassword: "DifferentPass123",
+      acceptedTerms: true,
     });
 
     const res = await POST(req);
@@ -103,6 +105,7 @@ describe("POST /api/register", () => {
       displayName: "Test User",
       password: "Password123",
       confirmPassword: "Password123",
+      acceptedTerms: true,
     });
 
     const res = await POST(req);
@@ -132,6 +135,7 @@ describe("POST /api/register", () => {
       displayName: "New User",
       password: "Password123",
       confirmPassword: "Password123",
+      acceptedTerms: true,
     });
 
     const res = await POST(req);
@@ -163,6 +167,7 @@ describe("POST /api/register", () => {
       displayName: "User",
       password: "Password123",
       confirmPassword: "Password123",
+      acceptedTerms: true,
     });
 
     await POST(req);
@@ -171,9 +176,14 @@ describe("POST /api/register", () => {
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
         email: "user@example.com",
-        name: "User",
-        displayName: "User",
         hashedPassword: "hashed_password_123",
+        consentRecords: {
+          create: {
+            termsVersion: "2026-05-20",
+            privacyVersion: "2026-05-20",
+            method: "email",
+          },
+        },
       },
     });
   });
@@ -198,6 +208,7 @@ describe("POST /api/register", () => {
       displayName: "User",
       password: "Password123",
       confirmPassword: "Password123",
+      acceptedTerms: true,
     });
 
     await POST(req);
@@ -232,6 +243,7 @@ describe("POST /api/register", () => {
       displayName: "User",
       password: "Password123",
       confirmPassword: "Password123",
+      acceptedTerms: true,
     });
 
     const res = await POST(req);
@@ -253,6 +265,7 @@ describe("POST /api/register", () => {
       displayName: "User",
       password: "Password123",
       confirmPassword: "Password123",
+      acceptedTerms: true,
     });
 
     const res = await POST(req);
@@ -273,6 +286,7 @@ describe("POST /api/register", () => {
           displayName: "A",
           password: "x",
           confirmPassword: "x",
+          acceptedTerms: true,
         },
         ip
       );
@@ -286,6 +300,7 @@ describe("POST /api/register", () => {
         displayName: "User",
         password: "Password123",
         confirmPassword: "Password123",
+        acceptedTerms: true,
       },
       ip
     );

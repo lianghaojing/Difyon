@@ -11,6 +11,8 @@ Full-stack authentication system built with Next.js 15, Auth.js v5, Prisma & Pos
 - 🛡️ Rate limiting & CSRF protection
 - 📱 Responsive UI with real-time form validation
 - 🔄 JWT session management with token revocation
+- 👤 Account Center for profile, password, and email status
+- 📜 Versioned terms/privacy consent records
 
 ## Tech Stack
 
@@ -44,6 +46,7 @@ cp .env.example .env
 # - AUTH_SECRET (generate with: openssl rand -base64 32)
 # - GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET
 # - NEXT_PUBLIC_APP_URL
+# - RESEND_API_KEY & EMAIL_FROM
 
 # Generate Prisma client
 npx prisma generate

@@ -1,5 +1,7 @@
 // lib/rate-limit.ts
 
+import { prisma } from "@/lib/prisma";
+
 interface RateLimitEntry {
   count: number;
   timestamps: number[];
@@ -56,6 +58,70 @@ export function checkRateLimit(
   entry.count++;
   store.set(key, entry);
   return { allowed: true };
+}
+
+export async function checkRateLimitForRequest(
+  key: string,
+  config: RateLimitConfig
+): Promise<{ allowed: boolean; retryAfterMs?: number }> {
+  if (process.env.NODE_ENV !== "production") {
+    return checkRateLimit(key, config);
+  }
+
+  const now = new Date();
+  const windowBoundary = new Date(now.getTime() - config.windowMs);
+
+  return prisma.$transaction(async (tx) => {
+    const entry = await tx.rateLimitEntry.findUnique({ where: { key } });
+
+    if (entry?.lockedUntil && entry.lockedUntil > now) {
+      return {
+        allowed: false,
+        retryAfterMs: entry.lockedUntil.getTime() - now.getTime(),
+      };
+    }
+
+    if (!entry || entry.windowStart <= windowBoundary) {
+      await tx.rateLimitEntry.upsert({
+        where: { key },
+        create: {
+          key,
+          count: 1,
+          windowStart: now,
+          lockedUntil: null,
+        },
+        update: {
+          count: 1,
+          windowStart: now,
+          lockedUntil: null,
+        },
+      });
+      return { allowed: true };
+    }
+
+    if (entry.count >= config.maxAttempts) {
+      const lockedUntil = config.lockoutMs
+        ? new Date(now.getTime() + config.lockoutMs)
+        : null;
+
+      await tx.rateLimitEntry.update({
+        where: { key },
+        data: { lockedUntil },
+      });
+
+      return {
+        allowed: false,
+        retryAfterMs: config.lockoutMs ?? config.windowMs,
+      };
+    }
+
+    await tx.rateLimitEntry.update({
+      where: { key },
+      data: { count: { increment: 1 }, lockedUntil: null },
+    });
+
+    return { allowed: true };
+  });
 }
 
 // 用于测试：重置存储

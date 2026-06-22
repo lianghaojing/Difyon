@@ -4,7 +4,11 @@ import { hashPassword } from "@/lib/password";
 import { createVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit, type RateLimitConfig } from "@/lib/rate-limit";
+import {
+  checkRateLimitForRequest,
+  type RateLimitConfig,
+} from "@/lib/rate-limit";
+import { PRIVACY_VERSION, TERMS_VERSION } from "@/lib/consent";
 
 const REGISTER_RATE_LIMIT: RateLimitConfig = {
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -19,7 +23,10 @@ export async function POST(req: NextRequest) {
       req.headers.get("x-real-ip") ||
       "unknown";
     const rateLimitKey = `register:${ip}`;
-    const rateLimit = checkRateLimit(rateLimitKey, REGISTER_RATE_LIMIT);
+    const rateLimit = await checkRateLimitForRequest(
+      rateLimitKey,
+      REGISTER_RATE_LIMIT
+    );
 
     if (!rateLimit.allowed) {
       return NextResponse.json(
@@ -41,7 +48,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { email, displayName, password } = validated.data;
+    const { email, password } = validated.data;
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -62,9 +69,14 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.create({
       data: {
         email,
-        name: displayName,
-        displayName,
         hashedPassword,
+        consentRecords: {
+          create: {
+            termsVersion: TERMS_VERSION,
+            privacyVersion: PRIVACY_VERSION,
+            method: "email",
+          },
+        },
       },
     });
 

@@ -221,7 +221,7 @@ export function LoginForm() {
           </div>
         </header>
 
-        <section className="flex w-full min-w-0 flex-1 items-start justify-start pt-8 sm:justify-center sm:pt-8 md:pt-8 lg:pt-2">
+        <section className="flex w-full min-w-0 flex-1 items-center justify-start py-8 sm:justify-center lg:py-0">
           <motion.div
             key={locale}
             className="w-[310px] min-w-0 sm:w-full sm:max-w-[420px]"

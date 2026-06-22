@@ -31,6 +31,7 @@ function VerifyEmailContent() {
   const router = useRouter();
   const token = searchParams.get("token");
   const emailParam = searchParams.get("email");
+  const deliveryFailed = searchParams.get("delivery") === "failed";
 
   const [state, setState] = useState<VerifyState>(
     token ? "loading" : "check-email"
@@ -366,7 +367,9 @@ function VerifyEmailContent() {
         {copy.verifyEmailCheckTitle}
       </h2>
       <p className="text-center text-sm text-gray-600">
-        {copy.verifyEmailCheckSubtitle}
+        {deliveryFailed
+          ? copy.verifyEmailDeliveryFailed
+          : copy.verifyEmailCheckSubtitle}
       </p>
       {!email && (
         <div className="w-full">

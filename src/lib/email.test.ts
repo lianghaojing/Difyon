@@ -11,6 +11,7 @@ describe("email service", () => {
   afterEach(() => {
     consoleSpy.mockRestore();
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   describe("sendEmail", () => {
@@ -58,7 +59,7 @@ describe("email service", () => {
       expect(allCalls).toContain("noreply@example.com");
     });
 
-    it("does not throw in production mode", async () => {
+    it("throws in production when email configuration is missing", async () => {
       vi.stubEnv("NODE_ENV", "production");
 
       await expect(
@@ -67,7 +68,51 @@ describe("email service", () => {
           subject: "Test",
           html: "<p>Body</p>",
         })
-      ).resolves.toBeUndefined();
+      ).rejects.toThrow("RESEND_API_KEY");
+    });
+
+    it("sends through Resend in production", async () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("RESEND_API_KEY", "re_test");
+      vi.stubEnv("EMAIL_FROM", "Difyon <noreply@difyon.com>");
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ id: "email-id" }), { status: 200 })
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      await sendEmail({
+        to: "user@example.com",
+        subject: "Test",
+        html: "<p>Body</p>",
+      });
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.resend.com/emails",
+        expect.objectContaining({
+          method: "POST",
+          headers: expect.objectContaining({
+            Authorization: "Bearer re_test",
+          }),
+        })
+      );
+    });
+
+    it("throws when Resend rejects delivery", async () => {
+      vi.stubEnv("NODE_ENV", "production");
+      vi.stubEnv("RESEND_API_KEY", "re_test");
+      vi.stubEnv("EMAIL_FROM", "Difyon <noreply@difyon.com>");
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(new Response("rejected", { status: 422 }))
+      );
+
+      await expect(
+        sendEmail({
+          to: "user@example.com",
+          subject: "Test",
+          html: "<p>Body</p>",
+        })
+      ).rejects.toThrow("Resend delivery failed");
     });
   });
 

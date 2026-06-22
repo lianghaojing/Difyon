@@ -5,6 +5,14 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations";
 import { verifyPassword } from "@/lib/password";
+import { cookies } from "next/headers";
+import {
+  GOOGLE_CONSENT_COOKIE,
+  PRIVACY_VERSION,
+  TERMS_VERSION,
+  getConsentCookieValue,
+  recordConsent,
+} from "@/lib/consent";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -43,9 +51,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ account }) {
-      // Google OAuth users are always allowed to sign in
-      if (account?.provider === "google") return true;
+    async signIn({ account, user }) {
+      if (account?.provider === "google") {
+        const cookieStore = await cookies();
+        const consentCookie = cookieStore.get(GOOGLE_CONSENT_COOKIE)?.value;
+
+        if (consentCookie === getConsentCookieValue() && user.id) {
+          await recordConsent(user.id, "google");
+          cookieStore.delete(GOOGLE_CONSENT_COOKIE);
+          return true;
+        }
+
+        if (user.id) {
+          const existingConsent = await prisma.consentRecord.findUnique({
+            where: {
+              userId_termsVersion_privacyVersion: {
+                userId: user.id,
+                termsVersion: TERMS_VERSION,
+                privacyVersion: PRIVACY_VERSION,
+              },
+            },
+          });
+
+          if (existingConsent) return true;
+        }
+
+        return "/register?googleConsent=required";
+      }
 
       // Credentials users: allow sign-in (email verification enforced at session level)
       if (account?.provider === "credentials") {
@@ -72,7 +104,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { tokenVersion: true, emailVerified: true },
+          select: {
+            tokenVersion: true,
+            emailVerified: true,
+            name: true,
+            displayName: true,
+          },
         });
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
           // tokenVersion mismatch - session has been revoked
@@ -80,6 +117,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
         // Update emailVerified status in token
         token.emailVerified = !!dbUser.emailVerified;
+        token.name = dbUser.displayName || dbUser.name || token.email;
       }
 
       return token;

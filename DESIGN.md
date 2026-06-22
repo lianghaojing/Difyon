@@ -256,7 +256,9 @@ Pages in scope:
 Register:
 
 - Display name is hidden for now by product decision.
+- Email users initially fall back to their email as identity and can set a display name in `/account/profile`.
 - Terms/privacy consent is required before submit.
+- Google signup without a checked consent box must show an explicit `Agree and continue` dialog.
 - Registration button should enable only when the form is valid and terms are accepted.
 - Duplicate email should not be shown too early while the user is still typing.
 
@@ -318,8 +320,8 @@ When unsure:
 
 ## Current Known Gaps
 
-- `/verify-email` copy is internationalized but visual style is still old.
-- `/terms` and `/privacy` are placeholder pages and need final legal copy.
+- `/terms` and `/privacy` contain multilingual draft copy but still need final legal review and contact details.
 - Auth form components are duplicated across pages and should eventually be extracted once the design stabilizes.
 - GitHub CI and E2E auth flow tests are not yet in place.
 - The branded loading component currently uses `<img>` and triggers a Next lint warning.
+- Conditional Cloudflare Turnstile is planned but stays disabled until site and secret keys are configured.

@@ -2,7 +2,10 @@
 
 import { signIn } from "@/auth";
 import { loginSchema } from "@/lib/validations";
-import { checkRateLimit, LOGIN_RATE_LIMIT } from "@/lib/rate-limit";
+import {
+  checkRateLimitForRequest,
+  LOGIN_RATE_LIMIT,
+} from "@/lib/rate-limit";
 import { AuthError } from "next-auth";
 import { headers } from "next/headers";
 
@@ -23,7 +26,10 @@ export async function login(values: {
     headersList.get("x-real-ip") ||
     "unknown";
   const rateLimitKey = `login:${ip}`;
-  const rateLimit = checkRateLimit(rateLimitKey, LOGIN_RATE_LIMIT);
+  const rateLimit = await checkRateLimitForRequest(
+    rateLimitKey,
+    LOGIN_RATE_LIMIT
+  );
 
   if (!rateLimit.allowed) {
     return {

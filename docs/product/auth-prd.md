@@ -251,7 +251,7 @@ These are not blockers for local MVP behavior, but they matter before public pro
 
 | Gap | Priority | Why |
 | --- | --- | --- |
-| Durable/distributed rate limiting | P1 | In-memory rate limiting is not enough for multi-instance production |
+| Durable/distributed rate limiting | Done | Production uses shared database-backed rate-limit entries |
 | Account lockout or risk-based throttling | P1 | Stronger abuse defense than IP-only limits |
 | Email retry or queue | P1 | Inline email sending is fragile |
 | Expired token cleanup job | P1 | Prevents old token buildup |
@@ -283,12 +283,12 @@ Current MVP auth is functionally complete when:
 
 Add or confirm:
 
-1. Durable rate limiting.
+1. Configure production Resend credentials and verified sender domain.
 2. Email provider health and retry behavior.
 3. Expired token cleanup.
 4. E2E tests for registration, verification, login, reset password, and logout.
 5. CI for lint, typecheck, and tests.
-6. Terms/privacy consent if product policy requires it.
+6. Confirm the final legal copy and contact details; consent recording is implemented.
 7. OAuth error UX polish.
 
 ### Relationship to Account Center
@@ -311,4 +311,3 @@ Account Center owns:
 - Logging out all devices.
 - Viewing email status from personal center.
 - Changing email later.
-

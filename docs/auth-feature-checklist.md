@@ -21,7 +21,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | --- | --- | --- | --- | --- |
 | REG-01 | Registration page | Done | `src/app/(auth)/register/page.tsx`, `src/components/auth/register-form.tsx` | UI exists. |
 | REG-02 | Email input | Done | `registerSchema.email` | Validates required email and max length. |
-| REG-03 | Display name input | Done | `displayNameSchema` | Requires 2-50 chars and rejects leading/trailing spaces. |
+| REG-03 | Display name input | Later | Hidden during registration | Email users manage the display name from Account Center after signup; Google users use their provider name. |
 | REG-04 | Password input | Done | `passwordSchema` | Requires 8-128 chars, uppercase, lowercase, digit. |
 | REG-05 | Confirm password input | Done | `registerSchema.refine` | Requires match. |
 | REG-06 | Password strength indicator | Done | `PasswordStrength`, `calculatePasswordStrength` | UI exists. |
@@ -30,9 +30,9 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | REG-09 | Duplicate email check | Done | `prisma.user.findUnique` | Returns 409. |
 | REG-10 | Password hashing | Done | `src/lib/password.ts` | Uses bcrypt. |
 | REG-11 | Verification token creation | Done | `createVerificationToken` | Deletes previous token first. |
-| REG-12 | Verification email send | Done | `sendVerificationEmail` | Sends after user creation. |
+| REG-12 | Verification email send | Done | `sendVerificationEmail` + Resend HTTP API | Production requires `RESEND_API_KEY` and a verified `EMAIL_FROM`. |
 | REG-13 | Registration rate limit | Done | `register:${ip}` | 5 attempts per 15 minutes. |
-| REG-14 | Terms/privacy consent | Todo | Not present | Add before public launch if policy requires it. |
+| REG-14 | Terms/privacy consent | Done | Checkbox, Google confirmation dialog, `ConsentRecord` | Records user, timestamp, policy versions, and registration method. |
 | REG-15 | Registration email send failure policy | Done | User creation remains successful and API returns `emailSent: false` if delivery fails | User can recover through resend verification. |
 
 ## 2. Login
@@ -111,7 +111,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | SEC-02 | Hashed email/reset tokens at rest | Done | `hashToken` | Raw tokens are not stored. |
 | SEC-03 | CSRF protection for auth | Done | Auth.js | Credentials sign-in uses Auth.js flow. |
 | SEC-04 | IP-based rate limiting | Done | `src/lib/rate-limit.ts` | In-memory limit. |
-| SEC-05 | Durable/distributed rate limiting | Todo | In-memory only | Needed for multi-instance production. |
+| SEC-05 | Durable/distributed rate limiting | Done | Database-backed in production; in-memory in development/tests | Shared across production instances. |
 | SEC-06 | Captcha/Turnstile on abuse-heavy forms | Todo | Not present | Add for login/register/forgot if exposed publicly. |
 | SEC-07 | Audit log for security events | Todo | Not present | Track login, logout, reset, verification, failed attempts. |
 | SEC-08 | Session/device management | Later | Not present | Useful for account settings. |
@@ -121,9 +121,9 @@ The remaining work is mostly product hardening: explicit verified-email access p
 
 | ID | Feature | Status | Current implementation | Notes |
 | --- | --- | --- | --- | --- |
-| ACC-01 | View current account identity | Partial | Home page shows name/email | No dedicated settings page. |
-| ACC-02 | Change display name | Todo | Not present | Basic account settings feature. |
-| ACC-03 | Change password while logged in | Todo | Not present | Should require current password. |
+| ACC-01 | View current account identity | Done | `/account` | Shows display name fallback, email, verification, and creation date. |
+| ACC-02 | Change display name | Done | `/account/profile` | Validates and updates account/session display name. |
+| ACC-03 | Change password while logged in | Done | `/account/security` | Requires current password and revokes old sessions. |
 | ACC-04 | Change email | Todo | Not present | Should require re-verification. |
 | ACC-05 | Delete account | Later | Not present | Needs product/legal decision. |
 | ACC-06 | Link/unlink Google account | Later | Not present | Useful after settings page exists. |
@@ -135,7 +135,7 @@ The remaining work is mostly product hardening: explicit verified-email access p
 | OPS-01 | Verification email template | Done | `src/lib/email.ts` | Existing implementation. |
 | OPS-02 | Password reset email template | Done | `src/lib/email.ts` | Existing implementation. |
 | OPS-03 | Environment-driven app URL | Done | `NEXT_PUBLIC_APP_URL` fallback | Used in email links. |
-| OPS-04 | Email provider configuration check | Partial | Depends on env | Add startup/config validation if needed. |
+| OPS-04 | Email provider configuration check | Partial | Production delivery fails explicitly when Resend config is missing | Deployment still needs real Resend credentials and verified sender domain. |
 | OPS-05 | Email retry/queue | Todo | Sends inline during request | Production should queue or retry failures. |
 | OPS-06 | Token cleanup job | Todo | Expired tokens remain until replaced/used | Add scheduled cleanup for old verification/reset tokens. |
 
@@ -158,8 +158,8 @@ The remaining work is mostly product hardening: explicit verified-email access p
 1. P0: Enforce verified-email access policy globally if the app requires verified users. Done.
 2. P0: Confirm registration email failure policy and make it explicit. Done.
 3. P0: Run lint/typecheck/test cleanly and upload this checklist to GitHub.
-4. P1: Add account settings basics: change name, change password, change email.
-5. P1: Add durable production rate limiting.
+4. P1: Finish account settings: change email remains.
+5. P1: Configure Cloudflare Turnstile and trigger it only after suspicious activity.
 6. P1: Add email retry/queue and expired token cleanup.
 7. P1: Add GitHub CI.
 8. P2: Add captcha/Turnstile if abuse appears or public traffic is expected.
@@ -174,9 +174,8 @@ Use this order when continuing implementation:
 2. Fix any failing tests without changing product behavior.
 3. Add global verified-email middleware policy or document why only the home page requires verification. Done.
 4. Decide and implement registration email failure behavior. Done.
-5. Add change password page/API.
-6. Add change display name page/API.
-7. Add change email with verification.
-8. Add durable rate limit storage.
-9. Add CI.
-10. Add E2E tests for register, verify email, login, forgot password, reset password, logout.
+5. Configure Resend credentials and verified sender domain.
+6. Add change email with verification.
+7. Configure conditional Cloudflare Turnstile.
+8. Add CI.
+9. Add E2E tests for register, consent, verify email, login, forgot password, reset password, logout, and account settings.

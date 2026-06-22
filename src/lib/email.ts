@@ -9,31 +9,40 @@ interface SendEmailOptions {
 /**
  * Base email sending function.
  * In development, logs email details to console.
- * In production, swap this implementation for Resend or Nodemailer.
+ * In production, deliver through Resend's HTTP API.
  */
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
-  const from = process.env.EMAIL_FROM || "noreply@example.com";
+  const from =
+    process.env.EMAIL_FROM ||
+    (process.env.NODE_ENV === "production" ? "" : "noreply@example.com");
 
   if (process.env.NODE_ENV === "production") {
-    if (!process.env.RESEND_API_KEY) {
-      console.error(
-        "[Email] CRITICAL: No email provider configured in production! " +
-        "Set RESEND_API_KEY environment variable. Emails will NOT be sent."
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey || !from) {
+      throw new Error(
+        "Production email requires RESEND_API_KEY and EMAIL_FROM"
       );
-      return;
     }
-    // TODO: Replace with Resend or Nodemailer in production
-    // Example with Resend:
-    //   const resend = new Resend(process.env.RESEND_API_KEY);
-    //   await resend.emails.send({ from, to: options.to, subject: options.subject, html: options.html });
-    //
-    // Example with Nodemailer:
-    //   const transporter = nodemailer.createTransport(process.env.EMAIL_SERVER);
-    //   await transporter.sendMail({ from, to: options.to, subject: options.subject, html: options.html });
-    console.log(`[Email] Sending email (production mode not configured)`);
-    console.log(`  From: ${from}`);
-    console.log(`  To: ${options.to}`);
-    console.log(`  Subject: ${options.subject}`);
+
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [options.to],
+        subject: options.subject,
+        html: options.html,
+      }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`Resend delivery failed (${response.status}): ${detail}`);
+    }
+
     return;
   }
 
