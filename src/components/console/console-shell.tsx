@@ -1,16 +1,21 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 const navItems = [
-  { label: "仪表盘", href: "/console/dashboard", active: true },
-  { label: "账户", href: "/console/accounts", active: false },
-  { label: "钱包", href: "/console/wallet", active: false },
-  { label: "产品", href: "/console/product", active: false },
-  { label: "申请开户记录", href: "/console/application-opening-records", active: false },
+  { label: "仪表盘", href: "/console/dashboard" },
+  { label: "账户", href: "/console/accounts" },
+  { label: "钱包", href: "/console/wallet" },
+  { label: "产品", href: "/console/product" },
+  { label: "申请开户记录", href: "/console/application-opening-records" },
 ];
 
 export function ConsoleShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
   return (
     <div className="min-h-screen bg-white text-[#14171a]">
       <nav className="flex h-[60px] items-center justify-between bg-[#000344] px-4 sm:px-6 lg:px-12">
@@ -26,19 +31,23 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
           </Link>
 
           <div className="hidden items-center gap-[30px] md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="whitespace-nowrap border-b-[3px] px-0 pb-[6px] pt-[6px] text-base leading-none transition-colors hover:text-white"
-                style={{
-                  color: item.active ? "#ffffff" : "#7d8c94",
-                  borderColor: item.active ? "#3b80f7" : "transparent",
-                }}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="whitespace-nowrap border-b-[3px] px-0 pb-[6px] pt-[6px] text-base leading-none transition-colors hover:text-white"
+                  style={{
+                    color: active ? "#ffffff" : "#7d8c94",
+                    borderColor: active ? "#3b80f7" : "transparent",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -74,7 +83,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
         </div>
       </nav>
 
-      <main className="mx-auto max-w-[1440px] px-4 py-4 sm:px-6 lg:px-12">
+      <main className="mx-auto w-full max-w-[1356px] px-4 py-4 sm:px-6 lg:px-0">
         {children}
       </main>
     </div>
