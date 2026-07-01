@@ -196,9 +196,9 @@ Baseline verified on 2026-07-01:
 
 | ID | Area | Item | Why it matters | Verification / next action | Status |
 | --- | --- | --- | --- | --- | --- |
-| AUTH-P0-01 | Security | Sanitize login `callbackUrl` before passing it to Auth.js `redirectTo` | Prevents any open-redirect or cross-origin redirect behavior after login/OAuth | Allow only relative app paths; add unit/regression coverage for external URLs | Todo |
-| AUTH-P0-02 | Backend | Confirm production Prisma migration exists for `displayName`, `tokenVersion`, `ConsentRecord`, `PasswordResetToken`, and `RateLimitEntry` | Schema changes compile locally, but deployment needs an explicit migration path | Check/create Prisma migration and test against a fresh database | Todo |
-| AUTH-P0-03 | Backend/Ops | Confirm Resend sender domain, `RESEND_API_KEY`, `EMAIL_FROM`, and `NEXT_PUBLIC_APP_URL` in the target environment | Registration and reset flows depend on real email delivery and correct links | Run a real verification email and password reset email in staging/local prod config | Todo |
+| AUTH-P0-01 | Security | Sanitize login `callbackUrl` before passing it to Auth.js `redirectTo` | Prevents any open-redirect or cross-origin redirect behavior after login/OAuth | Implemented `sanitizeCallbackUrl` and regression tests for internal paths, absolute URLs, protocol-relative URLs, backslashes, and control chars | Done |
+| AUTH-P0-02 | Backend | Confirm production Prisma migration exists for `displayName`, `tokenVersion`, `ConsentRecord`, `PasswordResetToken`, and `RateLimitEntry` | Schema changes compile locally, but deployment needs an explicit migration path | `displayName`, `tokenVersion`, and `PasswordResetToken` already exist in `origin/main` schema; added migration `20260701000000_add_auth_consent_and_rate_limits` for `ConsentRecord` and `RateLimitEntry` | Done |
+| AUTH-P0-03 | Backend/Ops | Confirm Resend sender domain, `RESEND_API_KEY`, `EMAIL_FROM`, and `NEXT_PUBLIC_APP_URL` in the target environment | Registration and reset flows depend on real email delivery and correct links | Blocked locally on 2026-07-01: `.env` has `EMAIL_FROM` and `NEXT_PUBLIC_APP_URL`, but no `RESEND_API_KEY`; still needs real Resend sender-domain verification and live verification/reset email test | Blocked |
 | AUTH-P0-04 | Frontend/Interaction | Browser-test the full happy path: register -> consent -> verification email -> verify -> login -> logout | Unit tests pass, but the actual user flow still needs end-to-end confirmation | Use a real browser and test account; record pass/fail notes here | Todo |
 | AUTH-P0-05 | Frontend/Interaction | Browser-test recovery path: forgot password -> reset email -> reset password -> old session invalidated -> login with new password | This is high-risk auth behavior and touches token/session revocation | Use a real browser and test account; add E2E later if stable | Todo |
 | AUTH-P0-06 | Frontend/Interaction | Confirm unverified-user behavior across protected routes | Middleware blocks protected pages, but the user experience must be understandable | Try `/`, `/account`, `/account/profile`, `/account/security` as unverified user | Todo |
@@ -234,5 +234,5 @@ Next session should start with:
 
 1. `git status --short --branch`
 2. Open this section in `docs/auth-feature-checklist.md`.
-3. Continue from the first unchecked P0 item, currently `AUTH-P0-01`.
+3. Continue from the first unchecked or blocked P0 item, currently `AUTH-P0-03`.
 4. After each item is handled, update its status and add a short result note.

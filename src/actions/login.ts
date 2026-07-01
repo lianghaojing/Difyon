@@ -6,6 +6,7 @@ import {
   checkRateLimitForRequest,
   LOGIN_RATE_LIMIT,
 } from "@/lib/rate-limit";
+import { sanitizeCallbackUrl } from "@/lib/redirect";
 import { AuthError } from "next-auth";
 import { headers } from "next/headers";
 
@@ -42,7 +43,7 @@ export async function login(values: {
     await signIn("credentials", {
       email: validated.data.email,
       password: validated.data.password,
-      redirectTo: values.callbackUrl || "/",
+      redirectTo: sanitizeCallbackUrl(values.callbackUrl),
     });
   } catch (error) {
     if (error instanceof AuthError) {
