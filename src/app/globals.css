@@ -1,5 +1,33 @@
 @import "tailwindcss";
 
+.console-chart-card {
+  aspect-ratio: 4 / 3;
+}
+
+.console-stat-card {
+  aspect-ratio: 5 / 4;
+}
+
+@media (min-width: 640px) {
+  .console-chart-card {
+    aspect-ratio: 16 / 9;
+  }
+
+  .console-stat-card {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .console-chart-card {
+    aspect-ratio: 663 / 292;
+  }
+
+  .console-stat-card {
+    aspect-ratio: 209 / 132;
+  }
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
