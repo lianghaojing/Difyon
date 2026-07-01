@@ -179,3 +179,60 @@ Use this order when continuing implementation:
 7. Configure conditional Cloudflare Turnstile.
 8. Add CI.
 9. Add E2E tests for register, consent, verify email, login, forgot password, reset password, logout, and account settings.
+
+## 2026-07-01 Acceptance Triage
+
+Use this section as the continuation checklist for the `codex/auth-pages-ui` branch. Do not recreate a new list next time; continue from the first unchecked P0/P1 item here.
+
+Baseline verified on 2026-07-01:
+
+- Branch: `codex/auth-pages-ui`
+- Working tree: clean before this checklist update.
+- `npm test`: passed, 10 files / 134 tests.
+- `npm run lint`: passed with warnings for raw `<img>` usage in auth/legal pages.
+- `npm run build`: passed with the same `<img>` warnings.
+
+### P0 - Must Confirm Before Merge
+
+| ID | Area | Item | Why it matters | Verification / next action | Status |
+| --- | --- | --- | --- | --- | --- |
+| AUTH-P0-01 | Security | Sanitize login `callbackUrl` before passing it to Auth.js `redirectTo` | Prevents any open-redirect or cross-origin redirect behavior after login/OAuth | Allow only relative app paths; add unit/regression coverage for external URLs | Todo |
+| AUTH-P0-02 | Backend | Confirm production Prisma migration exists for `displayName`, `tokenVersion`, `ConsentRecord`, `PasswordResetToken`, and `RateLimitEntry` | Schema changes compile locally, but deployment needs an explicit migration path | Check/create Prisma migration and test against a fresh database | Todo |
+| AUTH-P0-03 | Backend/Ops | Confirm Resend sender domain, `RESEND_API_KEY`, `EMAIL_FROM`, and `NEXT_PUBLIC_APP_URL` in the target environment | Registration and reset flows depend on real email delivery and correct links | Run a real verification email and password reset email in staging/local prod config | Todo |
+| AUTH-P0-04 | Frontend/Interaction | Browser-test the full happy path: register -> consent -> verification email -> verify -> login -> logout | Unit tests pass, but the actual user flow still needs end-to-end confirmation | Use a real browser and test account; record pass/fail notes here | Todo |
+| AUTH-P0-05 | Frontend/Interaction | Browser-test recovery path: forgot password -> reset email -> reset password -> old session invalidated -> login with new password | This is high-risk auth behavior and touches token/session revocation | Use a real browser and test account; add E2E later if stable | Todo |
+| AUTH-P0-06 | Frontend/Interaction | Confirm unverified-user behavior across protected routes | Middleware blocks protected pages, but the user experience must be understandable | Try `/`, `/account`, `/account/profile`, `/account/security` as unverified user | Todo |
+
+### P1 - Should Confirm Before Calling The Feature Polished
+
+| ID | Area | Item | Why it matters | Verification / next action | Status |
+| --- | --- | --- | --- | --- | --- |
+| AUTH-P1-01 | Visual | Review login/register/forgot/reset/verify/legal pages at mobile, tablet, and desktop widths | Auth is a trust surface; layout overflow or weak responsive behavior hurts conversion | Capture screenshots for 390px, 768px, 1440px and fix visible issues | Todo |
+| AUTH-P1-02 | Visual | Confirm brand assets and icon filenames, including Chinese filename assets under `public/icons/auth` | Non-ASCII asset names can be awkward in tooling/CDN workflows | Decide whether to rename assets to ASCII filenames and update imports | Todo |
+| AUTH-P1-03 | Visual/Performance | Replace raw logo `<img>` tags or explicitly document why they remain | Lint/build warn about possible LCP/bandwidth impact | Convert repeated brand images to `next/image` or centralize a justified exception | Todo |
+| AUTH-P1-04 | Interaction | Confirm loading, disabled, error, success, resend cooldown, and repeated-submit states on every auth form | Prevents duplicate requests and confusing failures | Manual browser pass over all auth forms; add notes per page | Todo |
+| AUTH-P1-05 | Interaction | Confirm language switch behavior across auth/legal pages | i18n copy exists, but persistence and route-to-route consistency need UX validation | Switch language on every page and reload/navigate | Todo |
+| AUTH-P1-06 | Accessibility | Keyboard-only and screen-reader label pass for all forms | Auth forms need strong accessibility basics | Tab through every field/button/link; verify labels, focus ring, error announcements | Todo |
+| AUTH-P1-07 | Frontend | Confirm account center UX: profile update, password update, resend verification, unavailable change-email page | Account pages were added but need workflow-level acceptance | Manual browser pass as verified/unverified/email/OAuth users where possible | Todo |
+| AUTH-P1-08 | Backend/Security | Decide whether registration duplicate-email response should remain explicit | Explicit 409 improves UX but reveals whether an email is registered | Product/security decision; either keep as intentional or change to uniform response | Todo |
+| AUTH-P1-09 | Backend/Security | Add account-level lockout or suspicious-activity handling beyond IP rate limits | IP-only throttling is easy to bypass and can punish shared networks | Decide MVP policy: defer, add account lockout, or add Turnstile on suspicious activity | Todo |
+| AUTH-P1-10 | Backend/Ops | Add expired token cleanup job or scheduled maintenance task | Verification/reset tokens otherwise accumulate | Decide cleanup cadence and implementation target | Todo |
+| AUTH-P1-11 | Release | Add CI for test/build/lint or confirm existing GitHub workflow status | Local checks pass, but merge safety needs automated verification | Add GitHub Actions or document external CI | Todo |
+
+### P2 - Later Hardening
+
+| ID | Area | Item | Why it matters | Verification / next action | Status |
+| --- | --- | --- | --- | --- | --- |
+| AUTH-P2-01 | Testing | Add Playwright E2E for critical auth paths | Prevents regressions in flows unit tests cannot cover | Add only after manual flow stabilizes | Todo |
+| AUTH-P2-02 | Security | Add security audit log for login, logout, failed login, reset, verification, and account changes | Useful for abuse investigation and user support | Define event schema first | Todo |
+| AUTH-P2-03 | Account | Implement change-email with re-verification | Current account email page exists but does not provide the full flow | Product decision and backend implementation needed | Todo |
+| AUTH-P2-04 | Account | Decide on delete account, OAuth link/unlink, 2FA, and device/session management | These are useful but not required for initial auth release | Prioritize only after core auth is accepted | Later |
+
+### Continuation Rule
+
+Next session should start with:
+
+1. `git status --short --branch`
+2. Open this section in `docs/auth-feature-checklist.md`.
+3. Continue from the first unchecked P0 item, currently `AUTH-P0-01`.
+4. After each item is handled, update its status and add a short result note.
