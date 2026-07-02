@@ -17,6 +17,8 @@ const publicRoutes = [
   "/api/forgot-password",
   "/api/reset-password",
   "/api/resend-verification",
+  "/api/cron",
+  "/console",
 ];
 const authRoutes = ["/login", "/register"];
 

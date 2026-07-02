@@ -1,9 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { generateToken, hashToken, createVerificationToken, createPasswordResetToken, verifyToken, consumeToken } from "./tokens";
+import {
+  generateToken,
+  hashToken,
+  createVerificationToken,
+  createPasswordResetToken,
+  verifyToken,
+  consumeToken,
+  deleteExpiredAuthTokens,
+} from "./tokens";
 
 // Mock Prisma
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: vi.fn(async (operations: unknown[]) => Promise.all(operations)),
     verificationToken: {
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
       create: vi.fn().mockResolvedValue({}),
@@ -220,6 +229,31 @@ describe("token service - database functions", () => {
 
       expect(mockedPrisma.passwordResetToken.deleteMany).toHaveBeenCalledWith({
         where: { token: expectedHash },
+      });
+    });
+  });
+
+  describe("deleteExpiredAuthTokens", () => {
+    it("deletes expired verification and password reset tokens", async () => {
+      const now = new Date("2026-07-02T00:00:00.000Z");
+      mockedPrisma.verificationToken.deleteMany.mockResolvedValueOnce({
+        count: 2,
+      });
+      mockedPrisma.passwordResetToken.deleteMany.mockResolvedValueOnce({
+        count: 3,
+      });
+
+      const result = await deleteExpiredAuthTokens(now);
+
+      expect(mockedPrisma.verificationToken.deleteMany).toHaveBeenCalledWith({
+        where: { expires: { lt: now } },
+      });
+      expect(mockedPrisma.passwordResetToken.deleteMany).toHaveBeenCalledWith({
+        where: { expires: { lt: now } },
+      });
+      expect(result).toEqual({
+        verificationTokens: 2,
+        passwordResetTokens: 3,
       });
     });
   });

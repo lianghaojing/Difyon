@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -23,10 +24,10 @@ import { registerSchema } from "@/lib/validations";
 import {
   authCopy,
   authLocales,
-  resolveAuthLocale,
   translateValidationMessage,
   type AuthLocale,
 } from "@/lib/i18n/auth";
+import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-client";
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const fieldBase =
@@ -40,7 +41,7 @@ const formAlert =
 
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
-  brandLogo: "/icons/auth/组 41642.svg",
+  brandLogo: "/icons/auth/brand-logo.svg",
   check: "/icons/auth/check.svg",
   cross: "/icons/auth/cross.svg",
   eye: "/icons/auth/eye.svg",
@@ -63,7 +64,7 @@ export function RegisterForm() {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   useEffect(() => {
-    setLocale(resolveAuthLocale(window.navigator.language));
+    setLocale(getInitialAuthLocale());
   }, []);
 
   useEffect(() => {
@@ -227,9 +228,11 @@ export function RegisterForm() {
             className="inline-flex items-center"
             aria-label={copy.brand}
           >
-            <img
+            <Image
               src={authIcons.brandLogo}
               alt={copy.brand}
+              width={595}
+              height={162}
               className="h-6 w-auto"
             />
           </Link>
@@ -263,6 +266,7 @@ export function RegisterForm() {
                   type="button"
                   onClick={() => {
                     setLocale(item);
+                    persistAuthLocale(item);
                     setIsLanguageOpen(false);
                   }}
                   className={`flex h-9 w-full items-center justify-between rounded-[8px] px-3 text-left text-xs font-semibold transition-colors duration-300 ease-out ${
@@ -272,6 +276,7 @@ export function RegisterForm() {
                   }`}
                   role="option"
                   aria-selected={locale === item}
+                  tabIndex={isLanguageOpen ? 0 : -1}
                 >
                   {copy.languages[item]}
                   {locale === item && (

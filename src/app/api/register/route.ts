@@ -57,8 +57,8 @@ export async function POST(req: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "该邮箱已被注册" },
-        { status: 409 }
+        { success: true, emailSent: true },
+        { status: 201 }
       );
     }
 

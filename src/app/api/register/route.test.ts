@@ -86,7 +86,7 @@ describe("POST /api/register", () => {
     expect(data.details.confirmPassword).toBeDefined();
   });
 
-  it("returns 409 when email already exists", async () => {
+  it("returns the generic success response when email already exists", async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       id: "existing-user-id",
       email: "user@example.com",
@@ -111,8 +111,12 @@ describe("POST /api/register", () => {
     const res = await POST(req);
     const data = await res.json();
 
-    expect(res.status).toBe(409);
-    expect(data.error).toBe("该邮箱已被注册");
+    expect(res.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.emailSent).toBe(true);
+    expect(prisma.user.create).not.toHaveBeenCalled();
+    expect(createVerificationToken).not.toHaveBeenCalled();
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
   });
 
   it("returns 201 with userId on successful registration", async () => {

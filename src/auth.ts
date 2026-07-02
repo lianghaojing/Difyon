@@ -5,6 +5,12 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations";
 import { verifyPassword } from "@/lib/password";
+import {
+  LOGIN_ACCOUNT_RATE_LIMIT,
+  clearRateLimitForRequest,
+  getRateLimitStatusForRequest,
+  recordRateLimitFailureForRequest,
+} from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 import {
   GOOGLE_CONSENT_COOKIE,
@@ -35,11 +41,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!validated.success) return null;
 
         const { email, password } = validated.data;
+        const accountRateLimitKey = `login-account:${email.toLowerCase()}`;
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !user.hashedPassword) return null;
 
+        const accountRateLimit = await getRateLimitStatusForRequest(
+          accountRateLimitKey,
+          LOGIN_ACCOUNT_RATE_LIMIT
+        );
+        if (!accountRateLimit.allowed) return null;
+
         const isValid = await verifyPassword(password, user.hashedPassword);
-        if (!isValid) return null;
+        if (!isValid) {
+          await recordRateLimitFailureForRequest(
+            accountRateLimitKey,
+            LOGIN_ACCOUNT_RATE_LIMIT
+          );
+          return null;
+        }
+
+        await clearRateLimitForRequest(accountRateLimitKey);
 
         return {
           id: user.id,

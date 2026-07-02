@@ -2,6 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +11,9 @@ import { BrandLoading } from "@/components/ui/brand-loading";
 import {
   authCopy,
   authLocales,
-  resolveAuthLocale,
   type AuthLocale,
 } from "@/lib/i18n/auth";
+import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-client";
 
 type VerifyState =
   | "loading"
@@ -21,7 +23,7 @@ type VerifyState =
   | "check-email";
 
 const authIcons = {
-  brandLogo: "/icons/auth/组 41642.svg",
+  brandLogo: "/icons/auth/brand-logo.svg",
   check: "/icons/auth/check.svg",
   fontSelect: "/icons/auth/font-select.svg",
 };
@@ -49,7 +51,7 @@ function VerifyEmailContent() {
   const copy = authCopy[locale];
 
   useEffect(() => {
-    setLocale(resolveAuthLocale(window.navigator.language));
+    setLocale(getInitialAuthLocale());
   }, []);
 
   useEffect(() => {
@@ -98,9 +100,12 @@ function VerifyEmailContent() {
           setState("success");
           // Clear stored email on successful verification
           sessionStorage.removeItem("verifyEmail");
-          // Redirect to login with success message after a short delay
+          // Clear the stale unverified registration session before sending
+          // the user back to login with a freshly verified account.
           setTimeout(() => {
-            router.push("/login?verified=true");
+            void signOut({ redirect: false }).finally(() => {
+              router.push("/login?verified=true");
+            });
           }, 2000);
         } else if (response.status === 410) {
           setState("expired");
@@ -155,9 +160,11 @@ function VerifyEmailContent() {
       <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 sm:px-8 md:px-12 lg:h-dvh lg:px-16">
         <header className="relative flex h-[78px] shrink-0 items-center justify-center sm:justify-between">
           <Link href="/" className="inline-flex items-center" aria-label={copy.brand}>
-            <img
+            <Image
               src={authIcons.brandLogo}
               alt={copy.brand}
+              width={595}
+              height={162}
               className="h-6 w-auto"
             />
           </Link>
@@ -191,6 +198,7 @@ function VerifyEmailContent() {
                   type="button"
                   onClick={() => {
                     setLocale(item);
+                    persistAuthLocale(item);
                     setIsLanguageOpen(false);
                   }}
                   className={`flex h-9 w-full items-center justify-between rounded-[8px] px-3 text-left text-xs font-semibold transition-colors duration-300 ease-out ${
@@ -200,6 +208,7 @@ function VerifyEmailContent() {
                   }`}
                   role="option"
                   aria-selected={locale === item}
+                  tabIndex={isLanguageOpen ? 0 : -1}
                 >
                   {copy.languages[item]}
                   {locale === item && (

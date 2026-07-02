@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { z } from "zod";
@@ -21,10 +22,10 @@ import { forgotPasswordSchema } from "@/lib/validations";
 import {
   authCopy,
   authLocales,
-  resolveAuthLocale,
   translateValidationMessage,
   type AuthLocale,
 } from "@/lib/i18n/auth";
+import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-client";
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
@@ -39,7 +40,7 @@ const formAlert =
 
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
-  brandLogo: "/icons/auth/组 41642.svg",
+  brandLogo: "/icons/auth/brand-logo.svg",
   check: "/icons/auth/check.svg",
   cross: "/icons/auth/cross.svg",
   fontSelect: "/icons/auth/font-select.svg",
@@ -54,7 +55,7 @@ export function ForgotPasswordForm() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setLocale(resolveAuthLocale(window.navigator.language));
+    setLocale(getInitialAuthLocale());
   }, []);
 
   useEffect(() => {
@@ -134,9 +135,11 @@ export function ForgotPasswordForm() {
       <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-5 sm:px-8 md:px-12 lg:h-dvh lg:px-16">
         <header className="relative flex h-[78px] shrink-0 items-center justify-center sm:justify-between">
           <Link href="/" className="inline-flex items-center" aria-label={copy.brand}>
-            <img
+            <Image
               src={authIcons.brandLogo}
               alt={copy.brand}
+              width={595}
+              height={162}
               className="h-6 w-auto"
             />
           </Link>
@@ -173,6 +176,7 @@ export function ForgotPasswordForm() {
                   type="button"
                   onClick={() => {
                     setLocale(item);
+                    persistAuthLocale(item);
                     setIsLanguageOpen(false);
                   }}
                   className={`flex h-9 w-full items-center justify-between rounded-[8px] px-3 text-left text-xs font-semibold transition-colors duration-300 ease-out ${
@@ -182,6 +186,7 @@ export function ForgotPasswordForm() {
                   }`}
                   role="option"
                   aria-selected={locale === item}
+                  tabIndex={isLanguageOpen ? 0 : -1}
                 >
                   {copy.languages[item]}
                   {locale === item && (

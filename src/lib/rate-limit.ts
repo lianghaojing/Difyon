@@ -60,6 +60,39 @@ export function checkRateLimit(
   return { allowed: true };
 }
 
+export function getRateLimitStatus(
+  key: string,
+  config: RateLimitConfig
+): { allowed: boolean; retryAfterMs?: number } {
+  const now = Date.now();
+  const entry = store.get(key);
+
+  if (!entry) return { allowed: true };
+
+  if (entry.lockedUntil && entry.lockedUntil > now) {
+    return { allowed: false, retryAfterMs: entry.lockedUntil - now };
+  }
+
+  if (entry.lockedUntil && entry.lockedUntil <= now) {
+    store.delete(key);
+    return { allowed: true };
+  }
+
+  const windowStart = now - config.windowMs;
+  entry.timestamps = entry.timestamps.filter((t) => t > windowStart);
+  entry.count = entry.timestamps.length;
+
+  if (entry.count >= config.maxAttempts) {
+    return {
+      allowed: false,
+      retryAfterMs: config.lockoutMs ?? config.windowMs,
+    };
+  }
+
+  store.set(key, entry);
+  return { allowed: true };
+}
+
 export async function checkRateLimitForRequest(
   key: string,
   config: RateLimitConfig
@@ -124,6 +157,62 @@ export async function checkRateLimitForRequest(
   });
 }
 
+export async function getRateLimitStatusForRequest(
+  key: string,
+  config: RateLimitConfig
+): Promise<{ allowed: boolean; retryAfterMs?: number }> {
+  if (process.env.NODE_ENV !== "production") {
+    return getRateLimitStatus(key, config);
+  }
+
+  const now = new Date();
+  const windowBoundary = new Date(now.getTime() - config.windowMs);
+  const entry = await prisma.rateLimitEntry.findUnique({ where: { key } });
+
+  if (!entry) return { allowed: true };
+
+  if (entry.lockedUntil && entry.lockedUntil > now) {
+    return {
+      allowed: false,
+      retryAfterMs: entry.lockedUntil.getTime() - now.getTime(),
+    };
+  }
+
+  if (entry.lockedUntil && entry.lockedUntil <= now) {
+    await prisma.rateLimitEntry.deleteMany({ where: { key } });
+    return { allowed: true };
+  }
+
+  if (entry.windowStart <= windowBoundary) {
+    return { allowed: true };
+  }
+
+  if (entry.count >= config.maxAttempts) {
+    return {
+      allowed: false,
+      retryAfterMs: config.lockoutMs ?? config.windowMs,
+    };
+  }
+
+  return { allowed: true };
+}
+
+export async function recordRateLimitFailureForRequest(
+  key: string,
+  config: RateLimitConfig
+): Promise<{ allowed: boolean; retryAfterMs?: number }> {
+  return checkRateLimitForRequest(key, config);
+}
+
+export async function clearRateLimitForRequest(key: string): Promise<void> {
+  if (process.env.NODE_ENV !== "production") {
+    store.delete(key);
+    return;
+  }
+
+  await prisma.rateLimitEntry.deleteMany({ where: { key } });
+}
+
 // 用于测试：重置存储
 export function resetRateLimitStore(): void {
   store.clear();
@@ -134,6 +223,12 @@ export const LOGIN_RATE_LIMIT: RateLimitConfig = {
   windowMs: 15 * 60 * 1000, // 15 分钟
   maxAttempts: 5,
   lockoutMs: 15 * 60 * 1000, // 锁定 15 分钟
+};
+
+export const LOGIN_ACCOUNT_RATE_LIMIT: RateLimitConfig = {
+  windowMs: 15 * 60 * 1000, // 15 分钟
+  maxAttempts: 5,
+  lockoutMs: 30 * 60 * 1000, // 锁定 30 分钟
 };
 
 export const FORGOT_PASSWORD_RATE_LIMIT: RateLimitConfig = {

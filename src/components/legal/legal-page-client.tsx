@@ -5,15 +5,16 @@ import {
   useRef,
   useState,
 } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import {
   authCopy,
   authLocales,
-  resolveAuthLocale,
   type AuthLocale,
 } from "@/lib/i18n/auth";
+import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-client";
 import { legalCopy } from "@/lib/i18n/legal";
 
 type LegalPageClientProps = {
@@ -21,7 +22,7 @@ type LegalPageClientProps = {
 };
 
 const authIcons = {
-  brandLogo: "/icons/auth/组 41642.svg",
+  brandLogo: "/icons/auth/brand-logo.svg",
   check: "/icons/auth/check.svg",
   fontSelect: "/icons/auth/font-select.svg",
 };
@@ -33,7 +34,7 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   useEffect(() => {
-    setLocale(resolveAuthLocale(window.navigator.language));
+    setLocale(getInitialAuthLocale());
   }, []);
 
   useEffect(() => {
@@ -71,9 +72,11 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
               className="inline-flex items-center"
               aria-label="Difyon"
             >
-              <img
+              <Image
                 src={authIcons.brandLogo}
                 alt="Difyon"
+                width={595}
+                height={162}
                 className="h-6 w-auto"
               />
             </Link>
@@ -115,6 +118,7 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
                   type="button"
                   onClick={() => {
                     setLocale(item);
+                    persistAuthLocale(item);
                     setIsLanguageOpen(false);
                   }}
                   className={`flex h-9 w-full items-center justify-between rounded-[8px] px-3 text-left text-xs font-semibold transition-colors duration-300 ease-out ${
@@ -124,6 +128,7 @@ export function LegalPageClient({ page }: LegalPageClientProps) {
                   }`}
                   role="option"
                   aria-selected={locale === item}
+                  tabIndex={isLanguageOpen ? 0 : -1}
                 >
                   {auth.languages[item]}
                   {locale === item && (

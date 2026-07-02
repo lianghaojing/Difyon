@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import {
   checkRateLimit,
+  clearRateLimitForRequest,
+  getRateLimitStatus,
   resetRateLimitStore,
+  LOGIN_ACCOUNT_RATE_LIMIT,
   LOGIN_RATE_LIMIT,
   FORGOT_PASSWORD_RATE_LIMIT,
   RESEND_VERIFICATION_RATE_LIMIT,
@@ -114,11 +117,71 @@ describe("rate-limit", () => {
     });
   });
 
+  describe("getRateLimitStatus", () => {
+    const config: RateLimitConfig = {
+      windowMs: 60_000,
+      maxAttempts: 2,
+      lockoutMs: 120_000,
+    };
+
+    it("does not increment attempts while checking status", () => {
+      expect(getRateLimitStatus("status-key", config).allowed).toBe(true);
+      expect(getRateLimitStatus("status-key", config).allowed).toBe(true);
+      expect(checkRateLimit("status-key", config).allowed).toBe(true);
+      expect(checkRateLimit("status-key", config).allowed).toBe(true);
+      expect(checkRateLimit("status-key", config).allowed).toBe(false);
+    });
+
+    it("reports a blocked key without adding another attempt", () => {
+      checkRateLimit("blocked-key", config);
+      checkRateLimit("blocked-key", config);
+
+      const status = getRateLimitStatus("blocked-key", config);
+
+      expect(status.allowed).toBe(false);
+      expect(status.retryAfterMs).toBe(config.lockoutMs);
+    });
+
+    it("allows again after the stored window expires", () => {
+      checkRateLimit("expired-window-key", config);
+      checkRateLimit("expired-window-key", config);
+
+      vi.advanceTimersByTime(config.windowMs + 1);
+
+      expect(getRateLimitStatus("expired-window-key", config).allowed).toBe(
+        true
+      );
+    });
+  });
+
+  describe("clearRateLimitForRequest", () => {
+    const config: RateLimitConfig = {
+      windowMs: 60_000,
+      maxAttempts: 1,
+      lockoutMs: 120_000,
+    };
+
+    it("clears stored failures in development and tests", async () => {
+      checkRateLimit("clear-key", config);
+      expect(checkRateLimit("clear-key", config).allowed).toBe(false);
+
+      await clearRateLimitForRequest("clear-key");
+
+      expect(checkRateLimit("clear-key", config).allowed).toBe(true);
+    });
+  });
+
   describe("predefined rate limit configs", () => {
     it("LOGIN_RATE_LIMIT has correct values", () => {
       expect(LOGIN_RATE_LIMIT.windowMs).toBe(15 * 60 * 1000);
       expect(LOGIN_RATE_LIMIT.maxAttempts).toBe(5);
       expect(LOGIN_RATE_LIMIT.lockoutMs).toBe(15 * 60 * 1000);
+    });
+
+    it("LOGIN_ACCOUNT_RATE_LIMIT has correct values", () => {
+      expect(LOGIN_ACCOUNT_RATE_LIMIT.windowMs).toBe(15 * 60 * 1000);
+      expect(LOGIN_ACCOUNT_RATE_LIMIT.maxAttempts).toBe(5);
+      expect(LOGIN_ACCOUNT_RATE_LIMIT.lockoutMs).toBe(30 * 60 * 1000);
     });
 
     it("FORGOT_PASSWORD_RATE_LIMIT has correct values", () => {

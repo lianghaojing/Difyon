@@ -88,3 +88,22 @@ export async function consumeToken(
     });
   }
 }
+
+export async function deleteExpiredAuthTokens(now = new Date()): Promise<{
+  verificationTokens: number;
+  passwordResetTokens: number;
+}> {
+  const [verificationTokens, passwordResetTokens] = await prisma.$transaction([
+    prisma.verificationToken.deleteMany({
+      where: { expires: { lt: now } },
+    }),
+    prisma.passwordResetToken.deleteMany({
+      where: { expires: { lt: now } },
+    }),
+  ]);
+
+  return {
+    verificationTokens: verificationTokens.count,
+    passwordResetTokens: passwordResetTokens.count,
+  };
+}
