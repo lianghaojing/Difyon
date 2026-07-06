@@ -10,8 +10,6 @@ const userDataDir = path.join(outDir, "chrome-profile");
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const port = 9333;
 
-const accountEmail = "visual.account.1783048674510@example.com";
-const accountPassword = "CodexVisual123";
 const viewports = [
   { name: "390-mobile", folder: "mobile", width: 390, height: 844 },
   { name: "768-tablet", folder: "ipad", width: 768, height: 1024 },
@@ -307,33 +305,6 @@ async function clearOrigin(client) {
   }).catch(() => {});
 }
 
-async function login(client) {
-  await clearOrigin(client);
-  await navigate(client, "/login");
-  await evaluate(client, fillExpression('input[type="email"]', accountEmail));
-  await evaluate(client, fillExpression('input[type="password"]', accountPassword));
-  await evaluate(client, clickExpression('button[type="submit"]'));
-  await sleep(3800);
-}
-
-async function captureAccount(title, route, note) {
-  for (const viewport of viewports) {
-    console.log(`capture ${title} ${viewport.name}`);
-    let client;
-    let targetId;
-    try {
-      ({ client, targetId } = await newClient(viewport));
-      await login(client);
-      await navigate(client, route);
-      await screenshot(client, title, viewport, note);
-    } catch (error) {
-      failures.push({ title, viewport: viewport.name, error: error.message });
-    } finally {
-      if (client) await closeTarget(client, targetId);
-    }
-  }
-}
-
 async function captureEmail(title, html, note) {
   for (const viewport of viewports) {
     console.log(`capture ${title} ${viewport.name}`);
@@ -509,11 +480,6 @@ try {
 
   await captureGoto("Terms page", "/terms", "服务条款页面");
   await captureGoto("Privacy page", "/privacy", "隐私政策页面");
-
-  await captureAccount("Account overview", "/account", "账号首页");
-  await captureAccount("Account profile", "/account/profile", "资料页");
-  await captureAccount("Account email verified state", "/account/email", "邮箱状态页");
-  await captureAccount("Account security password change", "/account/security", "安全和改密码页");
 
   const emailShell = (body) => `<main style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:0 auto;padding:32px;color:#1a1e26">${body}</main>`;
   await captureEmail(

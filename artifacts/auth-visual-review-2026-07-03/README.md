@@ -2,7 +2,7 @@
 
 Base URL: http://localhost:3002
 
-Screenshots: 93
+Screenshots: 81
 Failures: 0
 
 Device folders:
@@ -11,9 +11,11 @@ Device folders:
 - `screenshots/ipad/`: 768px iPad/tablet screenshots.
 - `screenshots/pc/`: 1440px desktop screenshots.
 
+Scope note: account center pages are intentionally excluded because their visual design is not ready for review.
+
 ## How to review
 
-For each state, check mobile (390), tablet (768), and desktop (1440). Mark the state as OK or note the exact visual issue.
+For each state, check mobile (390), iPad/tablet (768), and desktop (1440). Mark the state as OK or note the exact visual issue.
 
 ## Login default
 
@@ -415,70 +417,6 @@ Google 注册条款确认弹窗
 
 ![Privacy page 768-tablet](screenshots/ipad/privacy-page__768-tablet.png)
 
-## Account overview
-
-账号首页
-
-### 1440-desktop
-
-![Account overview 1440-desktop](screenshots/pc/account-overview__1440-desktop.png)
-
-### 390-mobile
-
-![Account overview 390-mobile](screenshots/mobile/account-overview__390-mobile.png)
-
-### 768-tablet
-
-![Account overview 768-tablet](screenshots/ipad/account-overview__768-tablet.png)
-
-## Account profile
-
-资料页
-
-### 1440-desktop
-
-![Account profile 1440-desktop](screenshots/pc/account-profile__1440-desktop.png)
-
-### 390-mobile
-
-![Account profile 390-mobile](screenshots/mobile/account-profile__390-mobile.png)
-
-### 768-tablet
-
-![Account profile 768-tablet](screenshots/ipad/account-profile__768-tablet.png)
-
-## Account email verified state
-
-邮箱状态页
-
-### 1440-desktop
-
-![Account email verified state 1440-desktop](screenshots/pc/account-email-verified-state__1440-desktop.png)
-
-### 390-mobile
-
-![Account email verified state 390-mobile](screenshots/mobile/account-email-verified-state__390-mobile.png)
-
-### 768-tablet
-
-![Account email verified state 768-tablet](screenshots/ipad/account-email-verified-state__768-tablet.png)
-
-## Account security password change
-
-安全和改密码页
-
-### 1440-desktop
-
-![Account security password change 1440-desktop](screenshots/pc/account-security-password-change__1440-desktop.png)
-
-### 390-mobile
-
-![Account security password change 390-mobile](screenshots/mobile/account-security-password-change__390-mobile.png)
-
-### 768-tablet
-
-![Account security password change 768-tablet](screenshots/ipad/account-security-password-change__768-tablet.png)
-
 ## Verification email content
 
 验证邮件内容
@@ -510,3 +448,4 @@ Google 注册条款确认弹窗
 ### 768-tablet
 
 ![Password reset email content 768-tablet](screenshots/ipad/password-reset-email-content__768-tablet.png)
+

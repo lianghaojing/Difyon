@@ -1,5 +1,6 @@
 {
   "outDir": "/Users/mobvista/Desktop/difyon/artifacts/auth-visual-review-2026-07-03",
-  "screenshots": 93,
-  "failures": []
+  "screenshots": 81,
+  "failures": [],
+  "scope": "registration-login-only; account center excluded"
 }
