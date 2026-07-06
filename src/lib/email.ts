@@ -6,6 +6,64 @@ interface SendEmailOptions {
   html: string;
 }
 
+interface AuthEmailTemplateOptions {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  buttonText: string;
+  buttonUrl: string;
+  expiryText: string;
+  safetyText: string;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function createAuthEmailHtml(options: AuthEmailTemplateOptions): string {
+  const buttonUrl = escapeHtml(options.buttonUrl);
+  const logoUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/icons/auth/brand-logo.svg`;
+
+  return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(options.title)}</title>
+    <style>
+      @media (max-width: 480px) {
+        .email-page { padding: 0 20px !important; }
+        .email-header { padding: 20px 0 !important; }
+        .email-content { padding-top: 170px !important; width: 310px !important; }
+        .email-title { font-size: 30px !important; }
+      }
+    </style>
+  </head>
+  <body style="margin:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','Noto Sans',Arial,sans-serif;color:#1a1e26;">
+    <div class="email-page" style="box-sizing:border-box;min-height:960px;background:#ffffff;padding:0 64px;">
+      <div style="box-sizing:border-box;margin:0 auto;max-width:1312px;">
+        <div class="email-header" style="box-sizing:border-box;display:flex;height:78px;align-items:center;justify-content:space-between;">
+          <img src="${escapeHtml(logoUrl)}" width="88" alt="Difyon" style="display:block;height:24px;width:auto;border:0;" />
+          <span style="display:inline-block;min-width:46px;border:1px solid #ecedf3;border-radius:12px;background:#ffffff;padding:10px 12px;color:#1a1e26;font-size:12px;font-weight:700;line-height:16px;text-align:center;box-shadow:inset 0 -2px 0 #ecedf3;">中文</span>
+        </div>
+        <div class="email-content" style="box-sizing:border-box;margin:0 auto;max-width:420px;padding-top:224px;">
+          <h1 class="email-title" style="margin:0;font-size:34px;font-weight:800;line-height:1.2;color:#1a1e26;letter-spacing:0;">${escapeHtml(options.title)}</h1>
+          <p style="margin:12px 0 0;font-size:17px;font-weight:500;line-height:28px;color:#55637f;">${escapeHtml(options.intro)}</p>
+          <p style="margin:22px 0 0;border:1px solid #ecedf3;border-radius:12px;background:#ffffff;padding:16px;font-size:14px;font-weight:600;line-height:24px;color:#55637f;">${escapeHtml(options.expiryText)}</p>
+          <a href="${buttonUrl}" style="display:block;margin:24px 0 0;height:42px;border-radius:8px;background:#f953c6;color:#ffffff;font-size:14px;font-weight:800;line-height:42px;text-align:center;text-decoration:none;">${escapeHtml(options.buttonText)} →</a>
+          <p style="margin:18px 0 0;font-size:12px;font-weight:500;line-height:20px;color:#7f8aa3;">${escapeHtml(options.safetyText)}</p>
+          <p style="margin:8px 0 0;word-break:break-all;overflow-wrap:anywhere;font-size:12px;font-weight:600;line-height:20px;color:#55637f;"><a href="${buttonUrl}" style="color:#f953c6;text-decoration:none;word-break:break-all;overflow-wrap:anywhere;">${buttonUrl}</a></p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>`;
+}
+
 /**
  * Base email sending function.
  * In development, logs email details to console.
@@ -72,12 +130,15 @@ export async function sendVerificationEmail(
   await sendEmail({
     to: email,
     subject: "验证您的邮箱地址",
-    html: `
-      <h1>邮箱验证</h1>
-      <p>请点击下方链接验证您的邮箱地址：</p>
-      <a href="${verifyUrl}">验证邮箱</a>
-      <p>此链接将在 24 小时后过期。</p>
-    `,
+    html: createAuthEmailHtml({
+      eyebrow: "Email verification",
+      title: "验证您的邮箱地址",
+      intro: "请确认这是您用于 Difyon 的邮箱。验证后即可继续使用注册登录功能。",
+      buttonText: "验证邮箱",
+      buttonUrl: verifyUrl,
+      expiryText: "此链接将在 24 小时后过期。",
+      safetyText: "如果您没有注册 Difyon，可以忽略这封邮件。",
+    }),
   });
 }
 
@@ -95,12 +156,14 @@ export async function sendPasswordResetEmail(
   await sendEmail({
     to: email,
     subject: "重置您的密码",
-    html: `
-      <h1>密码重置</h1>
-      <p>请点击下方链接重置您的密码：</p>
-      <a href="${resetUrl}">重置密码</a>
-      <p>此链接将在 1 小时后过期。</p>
-      <p>如果您没有请求重置密码，请忽略此邮件。</p>
-    `,
+    html: createAuthEmailHtml({
+      eyebrow: "Password reset",
+      title: "重置您的密码",
+      intro: "我们收到了重置 Difyon 密码的请求。请使用下面的按钮设置新密码。",
+      buttonText: "重置密码",
+      buttonUrl: resetUrl,
+      expiryText: "此链接将在 1 小时后过期。",
+      safetyText: "如果您没有请求重置密码，请忽略此邮件。",
+    }),
   });
 }
