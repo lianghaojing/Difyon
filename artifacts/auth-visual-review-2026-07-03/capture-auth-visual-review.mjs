@@ -13,9 +13,9 @@ const port = 9333;
 const accountEmail = "visual.account.1783048674510@example.com";
 const accountPassword = "CodexVisual123";
 const viewports = [
-  { name: "390-mobile", width: 390, height: 844 },
-  { name: "768-tablet", width: 768, height: 1024 },
-  { name: "1440-desktop", width: 1440, height: 960 },
+  { name: "390-mobile", folder: "mobile", width: 390, height: 844 },
+  { name: "768-tablet", folder: "ipad", width: 768, height: 1024 },
+  { name: "1440-desktop", folder: "pc", width: 1440, height: 960 },
 ];
 
 const captures = [];
@@ -23,6 +23,11 @@ const failures = [];
 let chrome;
 
 await fs.mkdir(screenshotsDir, { recursive: true });
+await Promise.all(
+  viewports.map((viewport) =>
+    fs.mkdir(path.join(screenshotsDir, viewport.folder), { recursive: true })
+  )
+);
 await fs.mkdir(userDataDir, { recursive: true });
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -235,8 +240,9 @@ async function screenshot(client, title, viewport, note = "") {
     captureBeyondViewport: true,
   });
   const file = `${safeName(title)}__${viewport.name}.png`;
-  await fs.writeFile(path.join(screenshotsDir, file), Buffer.from(result.data, "base64"));
-  captures.push({ title, viewport: viewport.name, file: `screenshots/${file}`, note });
+  const relativeFile = `screenshots/${viewport.folder}/${file}`;
+  await fs.writeFile(path.join(outDir, relativeFile), Buffer.from(result.data, "base64"));
+  captures.push({ title, viewport: viewport.name, file: relativeFile, note });
 }
 
 async function captureGoto(title, route, note = "") {
