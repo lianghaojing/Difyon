@@ -225,7 +225,7 @@ export function ForgotPasswordForm() {
                   show: { transition: { staggerChildren: 0.055 } },
                 }}
               >
-                <FormMotionRow className="rounded-[12px] border border-[#ecedf3] bg-white p-4 text-sm font-medium leading-6 text-[#55637f]">
+                <FormMotionRow className="rounded-[12px] border border-[#3B80F7] bg-[#EBF2FF] p-4 text-sm font-medium leading-6 text-[#1a1e26]">
                   {copy.checkEmailBody}
                 </FormMotionRow>
 

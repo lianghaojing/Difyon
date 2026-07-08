@@ -40,6 +40,7 @@ const formAlert =
   "mb-4 rounded-[8px] border border-[#ffd5ec] bg-[#fff8fb] px-3.5 py-3 text-xs font-medium leading-5 text-[#ff4337]";
 
 const authIcons = {
+  attention: "/icons/auth/attention.svg",
   arrow: "/icons/auth/arrow-muted.svg",
   brandLogo: "/icons/auth/brand-logo.svg",
   check: "/icons/auth/check.svg",
@@ -479,10 +480,17 @@ function TokenErrorView({
           show: { transition: { staggerChildren: 0.055 } },
         }}
       >
-        <FormMotionRow className="rounded-[12px] border border-[#FF4337] bg-[#FFF2F1] p-4 text-sm font-medium leading-6 text-[#1a1e26]">
-          {isExpired
-            ? copy.resetPasswordExpiredBody
-            : copy.resetPasswordInvalidBody}
+        <FormMotionRow className="flex items-start gap-2.5 rounded-[12px] border border-[#FF4337] bg-[#FFF2F1] p-4 text-sm font-medium leading-6 text-[#1a1e26]">
+          <IconMask
+            src={authIcons.attention}
+            color="#FF4337"
+            className="mt-1 h-3.5 w-3.5"
+          />
+          <span>
+            {isExpired
+              ? copy.resetPasswordExpiredBody
+              : copy.resetPasswordInvalidBody}
+          </span>
         </FormMotionRow>
 
         <FormMotionRow className="mt-8">
