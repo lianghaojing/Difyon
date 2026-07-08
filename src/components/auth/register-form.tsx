@@ -31,7 +31,7 @@ import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-clien
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const fieldBase =
-  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#a6b0c4] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
+  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#1a1e26] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
 
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
@@ -174,12 +174,6 @@ export function RegisterForm() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("verifyEmail", data.email);
       }
-
-      await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      });
 
       const delivery = result.emailSent === false ? "&delivery=failed" : "";
       router.push(
@@ -645,7 +639,7 @@ function PasswordRequirements({
             }`}
           >
             <span
-              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ease-out ${
+              className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ease-out ${
                 requirement.met
                   ? "border-[#f953c6] bg-[#f953c6]"
                   : "border-[#a6b0c4] bg-white"
@@ -782,7 +776,7 @@ function IconMask({
 }) {
   return (
     <span
-      className={`h-[14px] w-[14px] shrink-0 ${className}`}
+      className={`shrink-0 ${className || "h-[14px] w-[14px]"}`}
       aria-hidden="true"
       style={{
         backgroundColor: color,

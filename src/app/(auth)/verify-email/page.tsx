@@ -396,7 +396,7 @@ function VerifyEmailContent() {
         loading={resending}
         disabled={!email && !emailInput.trim()}
         variant="outline"
-        className="mt-2 w-full"
+        className="mt-2 w-full hover:border-[#f953c6] hover:bg-[#f953c6] hover:text-white focus-visible:outline-[#f953c6]"
       >
         {copy.resend}
       </Button>

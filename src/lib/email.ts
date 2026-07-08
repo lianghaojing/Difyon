@@ -26,7 +26,9 @@ function escapeHtml(value: string): string {
 
 function createAuthEmailHtml(options: AuthEmailTemplateOptions): string {
   const buttonUrl = escapeHtml(options.buttonUrl);
-  const logoUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/icons/auth/brand-logo.svg`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const logoUrl = `${appUrl}/icons/auth/brand-logo.svg`;
+  const infoIconUrl = `${appUrl}/icons/auth/info.svg`;
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -53,7 +55,10 @@ function createAuthEmailHtml(options: AuthEmailTemplateOptions): string {
         <div class="email-content" style="box-sizing:border-box;margin:0 auto;max-width:420px;padding-top:224px;">
           <h1 class="email-title" style="margin:0;font-size:34px;font-weight:800;line-height:1.2;color:#1a1e26;letter-spacing:0;">${escapeHtml(options.title)}</h1>
           <p style="margin:12px 0 0;font-size:17px;font-weight:500;line-height:28px;color:#55637f;">${escapeHtml(options.intro)}</p>
-          <p style="margin:22px 0 0;border:1px solid #ecedf3;border-radius:12px;background:#ffffff;padding:16px;font-size:14px;font-weight:600;line-height:24px;color:#55637f;">${escapeHtml(options.expiryText)}</p>
+          <div style="box-sizing:border-box;display:flex;align-items:flex-start;gap:6px;margin:24px 0 0;border:1px solid #3B80F7;border-radius:12px;background:#EBF2FF;padding:12px;font-size:14px;font-weight:600;line-height:1.6;color:#1a1e26;">
+            <img src="${escapeHtml(infoIconUrl)}" width="14" height="14" alt="" style="display:block;width:14px;height:14px;margin-top:4px;border:0;flex-shrink:0;" />
+            <span style="display:block;">${escapeHtml(options.expiryText)}</span>
+          </div>
           <a href="${buttonUrl}" style="display:block;margin:24px 0 0;height:42px;border-radius:8px;background:#f953c6;color:#ffffff;font-size:14px;font-weight:800;line-height:42px;text-align:center;text-decoration:none;">${escapeHtml(options.buttonText)} →</a>
           <p style="margin:18px 0 0;font-size:12px;font-weight:500;line-height:20px;color:#7f8aa3;">${escapeHtml(options.safetyText)}</p>
           <p style="margin:8px 0 0;word-break:break-all;overflow-wrap:anywhere;font-size:12px;font-weight:600;line-height:20px;color:#55637f;"><a href="${buttonUrl}" style="color:#f953c6;text-decoration:none;word-break:break-all;overflow-wrap:anywhere;">${buttonUrl}</a></p>

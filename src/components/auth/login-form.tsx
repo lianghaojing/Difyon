@@ -38,16 +38,13 @@ type LoginErrorKey =
   | "loginRateLimited";
 
 const fieldBase =
-  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#a6b0c4] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
+  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#1a1e26] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
 
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
 
 const formAlert =
-  "mb-4 rounded-[8px] border border-[#ffd5ec] bg-[#fff8fb] px-3.5 py-3 text-xs font-medium leading-5 text-[#ff4337]";
-
-const formStatus =
-  "mb-4 rounded-[8px] border border-[#ecedf3] bg-white px-3.5 py-3 text-xs font-medium leading-5 text-[#55637f]";
+  "mb-4 rounded-[8px] border border-[#FF4337] bg-[#FFF2F1] p-3 text-xs font-medium leading-[1.6] text-[#1a1e26]";
 
 const authIcons = {
   arrow: "/icons/auth/arrow-muted.svg",
@@ -112,8 +109,6 @@ export function LoginForm() {
   const emailValue = watch("email");
   const passwordValue = watch("password");
   const isSubmitDisabled = isPending || !isValid;
-  const message = searchParams.get("message");
-  const verified = searchParams.get("verified");
   const formError = formErrorKey ? copy[formErrorKey] : "";
   const validation = useMemo(
     () => ({
@@ -282,18 +277,6 @@ export function LoginForm() {
                   message={formError}
                   onClose={() => setFormErrorKey(null)}
                 />
-              )}
-
-              {!formError && (verified === "true" || message === "password-reset-success") && (
-                <FormMotionRow
-                  className={formStatus}
-                  role="status"
-                  aria-live="polite"
-                >
-                  {verified === "true"
-                    ? copy.emailVerifiedSuccess
-                    : copy.passwordResetSuccess}
-                </FormMotionRow>
               )}
 
               <div className="space-y-2 lg:space-y-1">

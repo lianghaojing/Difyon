@@ -30,7 +30,7 @@ import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-clien
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 const fieldBase =
-  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#a6b0c4] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
+  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#1a1e26] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
 
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
@@ -44,6 +44,7 @@ const authIcons = {
   check: "/icons/auth/check.svg",
   cross: "/icons/auth/cross.svg",
   fontSelect: "/icons/auth/font-select.svg",
+  info: "/icons/auth/info.svg",
 };
 
 export function ForgotPasswordForm() {
@@ -225,11 +226,16 @@ export function ForgotPasswordForm() {
                   show: { transition: { staggerChildren: 0.055 } },
                 }}
               >
-                <FormMotionRow className="rounded-[12px] border border-[#3B80F7] bg-[#EBF2FF] p-4 text-sm font-medium leading-6 text-[#1a1e26]">
-                  {copy.checkEmailBody}
+                <FormMotionRow className="flex items-start gap-1.5 rounded-[12px] border border-[#3B80F7] bg-[#EBF2FF] p-3 text-sm font-medium leading-6 text-[#1a1e26]">
+                  <IconMask
+                    src={authIcons.info}
+                    color="#3B80F7"
+                    className="mt-1 h-3.5 w-3.5"
+                  />
+                  <span>{copy.checkEmailBody}</span>
                 </FormMotionRow>
 
-                <FormMotionRow className="mt-8 lg:mt-5">
+                <FormMotionRow className="mt-6">
                   <Link
                     href="/login"
                     className="group flex h-[42px] w-full items-center justify-center rounded-[8px] bg-[#f953c6] text-sm font-semibold text-white transition-colors duration-300 ease-out hover:bg-[#ec3abb]"

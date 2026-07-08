@@ -6,8 +6,7 @@ import { LoginForm } from "@/components/auth/login-form";
 
 function LoginContent() {
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-  const reset = searchParams.get("reset");
+  const reset = searchParams.get("reset") || searchParams.get("message");
   const verified = searchParams.get("verified");
 
   const successMessage = reset
@@ -20,20 +19,11 @@ function LoginContent() {
     <>
       {successMessage && (
         <div
-          className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-700"
+          className="flex h-12 items-center justify-center bg-[#EBF8F0] px-4 text-center text-sm font-medium leading-[1.6] text-[#1a1e26]"
           role="status"
           aria-live="polite"
         >
           {successMessage}
-        </div>
-      )}
-      {error && (
-        <div
-          className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600"
-          role="alert"
-          aria-live="polite"
-        >
-          Google 登录失败，请重试
         </div>
       )}
       <LoginForm />

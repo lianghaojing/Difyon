@@ -31,7 +31,7 @@ import { getInitialAuthLocale, persistAuthLocale } from "@/lib/auth-locale-clien
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 const fieldBase =
-  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#a6b0c4] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
+  "peer block h-12 w-full box-border rounded-[8px] border bg-white px-4 text-sm font-medium text-[#1a1e26] outline-none transition placeholder:text-transparent focus:border-2 focus:px-[15px]";
 
 const fieldLabel =
   "pointer-events-none absolute left-3 bg-white px-1 font-medium transition-all duration-150";
@@ -480,7 +480,7 @@ function TokenErrorView({
           show: { transition: { staggerChildren: 0.055 } },
         }}
       >
-        <FormMotionRow className="flex items-start gap-2.5 rounded-[12px] border border-[#FF4337] bg-[#FFF2F1] p-4 text-sm font-medium leading-6 text-[#1a1e26]">
+        <FormMotionRow className="flex items-start gap-1.5 rounded-[12px] border border-[#FF4337] bg-[#FFF2F1] p-3 text-sm font-medium leading-6 text-[#1a1e26]">
           <IconMask
             src={authIcons.attention}
             color="#FF4337"
@@ -493,7 +493,7 @@ function TokenErrorView({
           </span>
         </FormMotionRow>
 
-        <FormMotionRow className="mt-8">
+        <FormMotionRow className="mt-6">
           <Link
             href="/forgot-password"
             className="group flex h-[42px] w-full items-center justify-center rounded-[8px] bg-[#f953c6] text-sm font-semibold text-white transition-colors duration-300 ease-out hover:bg-[#ec3abb]"
@@ -569,7 +569,7 @@ function PasswordRequirements({
             }`}
           >
             <span
-              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ease-out ${
+              className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ease-out ${
                 requirement.met
                   ? "border-[#f953c6] bg-[#f953c6]"
                   : "border-[#a6b0c4] bg-white"
@@ -700,7 +700,7 @@ function IconMask({
 }) {
   return (
     <span
-      className={`h-[14px] w-[14px] shrink-0 ${className}`}
+      className={`shrink-0 ${className || "h-[14px] w-[14px]"}`}
       aria-hidden="true"
       style={{
         backgroundColor: color,
