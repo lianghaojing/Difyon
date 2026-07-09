@@ -493,20 +493,26 @@ export function RegisterForm() {
         </section>
       </div>
       {isGoogleConsentOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a1e26]/35 px-5"
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a1e26]/30 px-5 backdrop-blur-[8px]"
           role="presentation"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setIsGoogleConsentOpen(false);
             }
           }}
         >
-          <div
+          <motion.div
             className="w-full max-w-[400px] rounded-[8px] bg-white p-6 shadow-[0_24px_70px_rgba(26,30,38,0.2)]"
             role="dialog"
             aria-modal="true"
             aria-labelledby="google-consent-title"
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
             <h2
               id="google-consent-title"
@@ -536,8 +542,8 @@ export function RegisterForm() {
                 {copy.agreeAndContinue}
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

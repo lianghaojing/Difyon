@@ -50,18 +50,28 @@ const authIcons = {
   fontSelect: "/icons/auth/font-select.svg",
 };
 
-type TokenError = "expired" | "invalid" | null;
+type TokenError = "expired" | "invalid" | "missing" | null;
 
 export function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+  const previewState =
+    process.env.NODE_ENV !== "production" ? searchParams.get("preview") : null;
   const languagePickerRef = useRef<HTMLDivElement>(null);
 
   const [locale, setLocale] = useState<AuthLocale>("en");
   const [formError, setFormError] = useState<string>("");
   const [tokenError, setTokenError] = useState<TokenError>(
-    token ? null : "invalid"
+    previewState === "expired"
+      ? "expired"
+      : previewState === "invalid"
+        ? "invalid"
+        : previewState === "missing"
+          ? "missing"
+        : token
+          ? null
+          : "missing"
   );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -455,6 +465,7 @@ function TokenErrorView({
   copy: (typeof authCopy)[AuthLocale];
 }) {
   const isExpired = tokenError === "expired";
+  const isMissing = tokenError === "missing";
 
   return (
     <>
@@ -462,12 +473,16 @@ function TokenErrorView({
         <h1 className="text-[30px] font-bold leading-tight text-[#1a1e26] sm:text-[36px] lg:text-[34px]">
           {isExpired
             ? copy.resetPasswordExpiredTitle
-            : copy.resetPasswordInvalidTitle}
+            : isMissing
+              ? copy.resetPasswordMissingTitle
+              : copy.resetPasswordInvalidTitle}
         </h1>
         <p className="mt-3 text-base leading-7 text-[#55637f] sm:text-lg lg:mt-2">
           {isExpired
             ? copy.resetPasswordExpiredSubtitle
-            : copy.resetPasswordInvalidSubtitle}
+            : isMissing
+              ? copy.resetPasswordMissingSubtitle
+              : copy.resetPasswordInvalidSubtitle}
         </p>
       </div>
 
@@ -489,7 +504,9 @@ function TokenErrorView({
           <span>
             {isExpired
               ? copy.resetPasswordExpiredBody
-              : copy.resetPasswordInvalidBody}
+              : isMissing
+                ? copy.resetPasswordMissingBody
+                : copy.resetPasswordInvalidBody}
           </span>
         </FormMotionRow>
 

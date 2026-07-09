@@ -18,10 +18,15 @@ export const authCopy = {
     resetPasswordInvalidTitle: "Reset link invalid",
     resetPasswordInvalidSubtitle:
       "This reset link is invalid or has already been used.",
+    resetPasswordMissingTitle: "Reset link missing",
+    resetPasswordMissingSubtitle:
+      "This page is missing the password reset link.",
     resetPasswordExpiredBody:
       "Password reset links are valid for 1 hour. Go back to forgot password and request a new link.",
     resetPasswordInvalidBody:
       "The link may be expired, already used, or incorrect. Please request another password reset.",
+    resetPasswordMissingBody:
+      "If you copied the link manually, make sure you copied the full link. You can also request another password reset.",
     checkEmailTitle: "Check your email",
     checkEmailSubtitle: "If this email is registered, a reset link has been sent.",
     checkEmailBody:
@@ -133,8 +138,11 @@ export const authCopy = {
     resetPasswordExpiredSubtitle: "此密码重置链接已过期，请重新申请。",
     resetPasswordInvalidTitle: "链接无效",
     resetPasswordInvalidSubtitle: "此密码重置链接无效或已被使用。",
+    resetPasswordMissingTitle: "链接缺失",
+    resetPasswordMissingSubtitle: "当前页面缺少密码重置链接，请从邮件中的按钮重新打开。",
     resetPasswordExpiredBody: "密码重置链接有效期为 1 小时。请返回忘记密码页面重新申请。",
     resetPasswordInvalidBody: "该链接可能已过期、已被使用或不正确。请重新申请密码重置。",
+    resetPasswordMissingBody: "如果链接是手动复制的，请确认已复制完整链接。您也可以重新申请密码重置。",
     checkEmailTitle: "检查您的邮箱",
     checkEmailSubtitle: "如果该邮箱已注册，重置链接已发送。",
     checkEmailBody: "请检查收件箱和垃圾邮件文件夹。为了账户安全，重置链接会在短时间后过期。",
@@ -243,10 +251,15 @@ export const authCopy = {
     resetPasswordInvalidTitle: "Ссылка недействительна",
     resetPasswordInvalidSubtitle:
       "Эта ссылка недействительна или уже использована.",
+    resetPasswordMissingTitle: "Ссылка отсутствует",
+    resetPasswordMissingSubtitle:
+      "На этой странице отсутствует ссылка для сброса пароля.",
     resetPasswordExpiredBody:
       "Ссылки для сброса пароля действуют 1 час. Вернитесь на страницу восстановления и запросите новую.",
     resetPasswordInvalidBody:
       "Ссылка может быть просрочена, уже использована или неверна. Запросите новый сброс пароля.",
+    resetPasswordMissingBody:
+      "Если вы копировали ссылку вручную, убедитесь, что скопировали ее полностью. Вы также можете запросить новый сброс пароля.",
     checkEmailTitle: "Проверьте почту",
     checkEmailSubtitle:
       "Если эта почта зарегистрирована, ссылка для сброса отправлена.",

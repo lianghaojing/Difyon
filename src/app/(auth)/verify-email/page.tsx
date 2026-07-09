@@ -24,6 +24,12 @@ type VerifyState =
 
 const authIcons = {
   brandLogo: "/icons/auth/brand-logo.svg",
+  checkEmailWatercolor: "/icons/auth/check-email-watercolor.png",
+  emailDeliveryFailedWatercolor: "/icons/auth/email-delivery-failed-watercolor.png",
+  verifyEmailSuccessWatercolor: "/icons/auth/verify-email-success-watercolor.png",
+  verifyEmailExpiredWatercolor: "/icons/auth/verify-email-expired-watercolor.png",
+  verifyEmailInvalidWatercolor: "/icons/auth/verify-email-invalid-watercolor.png",
+  verifyEmailResendSuccessWatercolor: "/icons/auth/verify-email-resend-success-watercolor.png",
   check: "/icons/auth/check.svg",
   fontSelect: "/icons/auth/font-select.svg",
 };
@@ -240,22 +246,14 @@ function VerifyEmailContent() {
   if (state === "success") {
     return renderShell(
       <div className="flex flex-col items-center gap-4 py-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-          <svg
-            className="h-6 w-6 text-green-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
+        <Image
+          src={authIcons.verifyEmailSuccessWatercolor}
+          alt=""
+          width={936}
+          height={764}
+          className="h-24 w-24 object-contain"
+          priority
+        />
         <h2 className="text-lg font-semibold text-gray-900">
           {copy.verifyEmailSuccessTitle}
         </h2>
@@ -269,22 +267,14 @@ function VerifyEmailContent() {
   if (state === "expired") {
     return renderShell(
       <div className="flex flex-col items-center gap-4 py-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
-          <svg
-            className="h-6 w-6 text-yellow-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-            />
-          </svg>
-        </div>
+        <Image
+          src={authIcons.verifyEmailExpiredWatercolor}
+          alt=""
+          width={422}
+          height={933}
+          className="h-24 w-24 object-contain"
+          priority
+        />
         <h2 className="text-lg font-semibold text-gray-900">
           {copy.verifyEmailExpiredTitle}
         </h2>
@@ -327,22 +317,14 @@ function VerifyEmailContent() {
   if (state === "invalid") {
     return renderShell(
       <div className="flex flex-col items-center gap-4 py-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-          <svg
-            className="h-6 w-6 text-red-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </div>
+        <Image
+          src={authIcons.verifyEmailInvalidWatercolor}
+          alt=""
+          width={822}
+          height={826}
+          className="h-24 w-24 object-contain"
+          priority
+        />
         <h2 className="text-lg font-semibold text-gray-900">
           {copy.verifyEmailInvalidTitle}
         </h2>
@@ -356,22 +338,20 @@ function VerifyEmailContent() {
   // state === "check-email"
   return renderShell(
     <div className="flex flex-col items-center gap-4 py-8">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-        <svg
-          className="h-6 w-6 text-blue-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
-      </div>
+      <Image
+        src={
+          resendMessage
+            ? authIcons.verifyEmailResendSuccessWatercolor
+            : deliveryFailed
+            ? authIcons.emailDeliveryFailedWatercolor
+            : authIcons.checkEmailWatercolor
+        }
+        alt=""
+        width={resendMessage ? 840 : deliveryFailed ? 373 : 799}
+        height={resendMessage ? 604 : deliveryFailed ? 970 : 820}
+        className="h-24 w-24 object-contain"
+        priority
+      />
       <h2 className="text-lg font-semibold text-gray-900">
         {copy.verifyEmailCheckTitle}
       </h2>
