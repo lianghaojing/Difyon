@@ -10,7 +10,8 @@ export const authCopy = {
     loginTitle: "Log in to Difyon",
     loginSubtitle: "Log in to continue",
     forgotPasswordTitle: "Reset your password",
-    forgotPasswordSubtitle: "Enter your email and we'll send a reset link",
+    forgotPasswordSubtitle:
+      "Enter your email. If it is registered, we will send a reset link",
     resetPasswordTitle: "Create a new password",
     resetPasswordSubtitle: "Choose a strong password to secure your account",
     resetPasswordExpiredTitle: "Reset link expired",
@@ -91,11 +92,12 @@ export const authCopy = {
       "This verification link is invalid or has already been used.",
     verifyEmailCheckTitle: "Check your email",
     verifyEmailCheckSubtitle:
-      "We sent you a verification email. Click the link in the email to finish setup.",
+      "If this email can be registered, we will send a verification email. If you already have an account, log in or reset your password.",
     verifyEmailDeliveryFailed:
-      "Your account was created, but the verification email could not be sent. Use resend to try again.",
+      "Your account was created, but the verification email could not be sent. Resend the email or return to login and try again later.",
     verifyEmailAddressRequired: "Please enter your email address.",
-    verifyEmailResent: "Verification email resent. Please check your inbox.",
+    verifyEmailResent:
+      "If this email still needs verification, we will send a new verification email. Please check your inbox and spam folder.",
     verifyEmailRateLimited: "Too many requests. Please try again later.",
     verifyEmailResendFailed: "Failed to resend email. Please try again later.",
     resendVerificationEmail: "Resend verification email",
@@ -131,7 +133,7 @@ export const authCopy = {
     loginTitle: "登录 Difyon",
     loginSubtitle: "登录您的账户以继续",
     forgotPasswordTitle: "重置密码",
-    forgotPasswordSubtitle: "输入邮箱地址，我们会发送重置链接",
+    forgotPasswordSubtitle: "输入邮箱地址。如果该邮箱已注册，我们会发送重置链接",
     resetPasswordTitle: "新建密码",
     resetPasswordSubtitle: "设置一个安全的新密码来保护您的账户",
     resetPasswordExpiredTitle: "链接已过期",
@@ -202,11 +204,13 @@ export const authCopy = {
     verifyEmailInvalidTitle: "验证链接无效",
     verifyEmailInvalidSubtitle: "该验证链接无效或已被使用",
     verifyEmailCheckTitle: "请检查您的邮箱",
-    verifyEmailCheckSubtitle: "我们已向您的邮箱发送了一封验证邮件，请点击邮件中的链接完成验证",
+    verifyEmailCheckSubtitle:
+      "如果该邮箱可以注册，我们会发送验证邮件。若您已有账户，请直接登录或重置密码",
     verifyEmailDeliveryFailed:
-      "账户已创建，但验证邮件发送失败，请点击重新发送后再检查邮箱",
+      "账户已创建，但验证邮件暂时没有发送成功。您可以重新发送，或返回登录后稍后再试",
     verifyEmailAddressRequired: "请输入邮箱地址。",
-    verifyEmailResent: "验证邮件已重新发送，请检查您的邮箱。",
+    verifyEmailResent:
+      "如果该邮箱仍需验证，我们会发送新的验证邮件。请检查收件箱和垃圾邮件。",
     verifyEmailRateLimited: "发送过于频繁，请稍后重试。",
     verifyEmailResendFailed: "发送失败，请稍后重试。",
     resendVerificationEmail: "重新发送验证邮件",
@@ -242,7 +246,8 @@ export const authCopy = {
     loginTitle: "Войдите в Difyon",
     loginSubtitle: "Войдите, чтобы продолжить",
     forgotPasswordTitle: "Сброс пароля",
-    forgotPasswordSubtitle: "Введите почту, и мы отправим ссылку для сброса",
+    forgotPasswordSubtitle:
+      "Введите почту. Если она зарегистрирована, мы отправим ссылку для сброса",
     resetPasswordTitle: "Создайте новый пароль",
     resetPasswordSubtitle: "Выберите надежный пароль для защиты аккаунта",
     resetPasswordExpiredTitle: "Ссылка истекла",
@@ -326,11 +331,12 @@ export const authCopy = {
       "Эта ссылка недействительна или уже использована.",
     verifyEmailCheckTitle: "Проверьте почту",
     verifyEmailCheckSubtitle:
-      "Мы отправили письмо подтверждения. Перейдите по ссылке в письме, чтобы завершить настройку.",
+      "Если эту почту можно зарегистрировать, мы отправим письмо подтверждения. Если у вас уже есть аккаунт, войдите или сбросьте пароль.",
     verifyEmailDeliveryFailed:
-      "Аккаунт создан, но письмо не отправлено. Нажмите повторную отправку.",
+      "Аккаунт создан, но письмо подтверждения пока не отправлено. Отправьте его повторно или вернитесь ко входу и попробуйте позже.",
     verifyEmailAddressRequired: "Введите электронную почту.",
-    verifyEmailResent: "Письмо подтверждения отправлено. Проверьте почту.",
+    verifyEmailResent:
+      "Если этой почте все еще нужно подтверждение, мы отправим новое письмо. Проверьте входящие и спам.",
     verifyEmailRateLimited: "Слишком много запросов. Попробуйте позже.",
     verifyEmailResendFailed: "Не удалось отправить письмо. Попробуйте позже.",
     resendVerificationEmail: "Отправить письмо повторно",

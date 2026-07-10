@@ -96,6 +96,7 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
     trigger,
     formState: { errors, isSubmitting, isSubmitted, isValid },
@@ -106,7 +107,7 @@ export function RegisterForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      acceptedTerms: true,
+      acceptedTerms: false,
     },
   });
 
@@ -222,6 +223,14 @@ export function RegisterForm() {
     }
 
     setIsGoogleConsentOpen(true);
+  };
+
+  const handleAcceptedTermsChange = (checked: boolean) => {
+    setAcceptedTerms(checked);
+    setValue("acceptedTerms", checked, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   };
 
   return (
@@ -436,7 +445,9 @@ export function RegisterForm() {
                     id="acceptedTerms"
                     type="checkbox"
                     checked={acceptedTerms}
-                    onChange={(event) => setAcceptedTerms(event.target.checked)}
+                    onChange={(event) =>
+                      handleAcceptedTermsChange(event.target.checked)
+                    }
                     className="peer sr-only"
                   />
                   <label
@@ -546,6 +557,10 @@ export function RegisterForm() {
                 type="button"
                 onClick={() => {
                   setAcceptedTerms(true);
+                  setValue("acceptedTerms", true, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
                   void continueWithGoogle();
                 }}
                 className="h-[42px] rounded-[8px] bg-[#f953c6] px-5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-[#ec3abb]"

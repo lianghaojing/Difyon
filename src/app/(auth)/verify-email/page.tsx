@@ -341,6 +341,7 @@ function VerifyEmailContent() {
         >
           {copy.resendVerificationEmail}
         </Button>
+        <BackToLoginLink label={copy.backToLogin} />
         {resendMessage && (
           <p className="text-sm text-green-600" role="status">
             {resendMessage}
@@ -372,6 +373,36 @@ function VerifyEmailContent() {
         <p className="text-sm text-gray-600">
           {copy.verifyEmailInvalidSubtitle}
         </p>
+        {!email && (
+          <div className="w-full">
+            <Input
+              type="email"
+              placeholder={copy.emailPlaceholder}
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              aria-label={copy.email}
+            />
+          </div>
+        )}
+        <Button
+          onClick={handleResend}
+          loading={resending}
+          disabled={!email && !emailInput.trim()}
+          className="mt-2 w-full"
+        >
+          {copy.resendVerificationEmail}
+        </Button>
+        <BackToLoginLink label={copy.backToLogin} />
+        {resendMessage && (
+          <p className="text-sm text-green-600" role="status">
+            {resendMessage}
+          </p>
+        )}
+        {resendError && (
+          <p className="text-sm text-red-600" role="alert">
+            {resendError}
+          </p>
+        )}
       </div>
     );
   }
@@ -421,6 +452,7 @@ function VerifyEmailContent() {
       >
         {copy.resend}
       </Button>
+      <BackToLoginLink label={copy.backToLogin} />
       {resendMessage && (
         <p className="text-sm text-green-600" role="status">
           {resendMessage}
@@ -432,6 +464,17 @@ function VerifyEmailContent() {
         </p>
       )}
     </div>
+  );
+}
+
+function BackToLoginLink({ label }: { label: string }) {
+  return (
+    <Link
+      href="/login"
+      className="text-sm font-semibold text-[#55637f] transition-colors duration-300 ease-out hover:text-[#f953c6]"
+    >
+      {label} →
+    </Link>
   );
 }
 
