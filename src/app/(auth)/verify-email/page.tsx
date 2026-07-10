@@ -22,6 +22,13 @@ type VerifyState =
   | "invalid"
   | "check-email";
 
+type VerifyPreview =
+  | "success"
+  | "expired"
+  | "invalid"
+  | "resend-success"
+  | null;
+
 const authIcons = {
   brandLogo: "/icons/auth/brand-logo.svg",
   checkEmailWatercolor: "/icons/auth/check-email-watercolor.png",
@@ -34,15 +41,35 @@ const authIcons = {
   fontSelect: "/icons/auth/font-select.svg",
 };
 
+function getVerifyPreview(value: string | null): VerifyPreview {
+  if (process.env.NODE_ENV === "production") return null;
+  if (
+    value === "success" ||
+    value === "expired" ||
+    value === "invalid" ||
+    value === "resend-success"
+  ) {
+    return value;
+  }
+  return null;
+}
+
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
   const emailParam = searchParams.get("email");
   const deliveryFailed = searchParams.get("delivery") === "failed";
+  const preview = getVerifyPreview(searchParams.get("preview"));
+  const previewState =
+    preview === "success" || preview === "expired" || preview === "invalid"
+      ? preview
+      : preview === "resend-success"
+        ? "check-email"
+        : null;
 
   const [state, setState] = useState<VerifyState>(
-    token ? "loading" : "check-email"
+    previewState ?? (token ? "loading" : "check-email")
   );
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
@@ -55,6 +82,18 @@ function VerifyEmailContent() {
   // Resolve email from URL param or sessionStorage
   const [email, setEmail] = useState<string | null>(emailParam);
   const copy = authCopy[locale];
+
+  useEffect(() => {
+    if (previewState) {
+      setState(previewState);
+    }
+  }, [previewState]);
+
+  useEffect(() => {
+    if (preview !== "resend-success") return;
+    setResendMessage(copy.verifyEmailResent);
+    setEmail(emailParam ?? "visual.resend.review@example.com");
+  }, [copy.verifyEmailResent, emailParam, preview]);
 
   useEffect(() => {
     setLocale(getInitialAuthLocale());
@@ -79,6 +118,7 @@ function VerifyEmailContent() {
   }, [isLanguageOpen]);
 
   useEffect(() => {
+    if (preview) return;
     if (emailParam) {
       // Store in sessionStorage for future use
       sessionStorage.setItem("verifyEmail", emailParam);
@@ -90,9 +130,10 @@ function VerifyEmailContent() {
         setEmail(stored);
       }
     }
-  }, [emailParam]);
+  }, [emailParam, preview]);
 
   useEffect(() => {
+    if (preview) return;
     if (!token) return;
 
     async function verifyEmail() {
@@ -124,7 +165,7 @@ function VerifyEmailContent() {
     }
 
     verifyEmail();
-  }, [token, router]);
+  }, [token, router, preview]);
 
   const handleResend = useCallback(async () => {
     const targetEmail = email || emailInput.trim();
