@@ -116,6 +116,11 @@ export function RegisterForm() {
   const isBusy = isSubmitting || isGoogleLoading;
   const isSubmitDisabled = isBusy || !acceptedTerms || !isValid;
 
+  useEffect(() => {
+    if (!confirmPasswordValue) return;
+    void trigger("confirmPassword");
+  }, [confirmPasswordValue, passwordValue, trigger]);
+
   const validation = useMemo(
     () => {
       const shouldShowError = (value?: string) =>
@@ -124,6 +129,12 @@ export function RegisterForm() {
         emailValue && errors.email?.message === "邮箱不能为空"
           ? undefined
           : errors.email?.message;
+      const confirmPasswordError =
+        passwordValue &&
+        confirmPasswordValue &&
+        passwordValue === confirmPasswordValue
+          ? undefined
+          : errors.confirmPassword?.message;
 
       return {
         email: shouldShowError(emailValue)
@@ -133,7 +144,7 @@ export function RegisterForm() {
           ? translateValidationMessage(locale, errors.password?.message)
           : undefined,
         confirmPassword: shouldShowError(confirmPasswordValue)
-          ? translateValidationMessage(locale, errors.confirmPassword?.message)
+          ? translateValidationMessage(locale, confirmPasswordError)
           : undefined,
       };
     },

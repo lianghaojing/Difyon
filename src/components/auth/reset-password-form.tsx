@@ -122,17 +122,28 @@ export function ResetPasswordForm() {
   const confirmPasswordValue = watch("confirmPassword");
   const isSubmitDisabled = isPending || !isValid;
 
+  useEffect(() => {
+    if (!confirmPasswordValue) return;
+    void trigger("confirmPassword");
+  }, [confirmPasswordValue, passwordValue, trigger]);
+
   const validation = useMemo(
     () => {
       const shouldShowError = (value?: string) =>
         isSubmitted || Boolean(value && value.length > 0);
+      const confirmPasswordError =
+        passwordValue &&
+        confirmPasswordValue &&
+        passwordValue === confirmPasswordValue
+          ? undefined
+          : errors.confirmPassword?.message;
 
       return {
         password: !isPasswordFocused && shouldShowError(passwordValue)
           ? translateValidationMessage(locale, errors.password?.message)
           : undefined,
         confirmPassword: shouldShowError(confirmPasswordValue)
-          ? translateValidationMessage(locale, errors.confirmPassword?.message)
+          ? translateValidationMessage(locale, confirmPasswordError)
           : undefined,
       };
     },
